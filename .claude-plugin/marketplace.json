@@ -25,6 +25,22 @@
         "security",
         "subagents"
       ]
+    },
+    {
+      "name": "ralph-wiggum",
+      "source": "./plugins/ralph-wiggum",
+      "description": "Autonomous AI agent loop that runs Claude Code repeatedly until all PRD items are complete. Each iteration spawns a fresh instance with clean context; memory persists via git history, progress.txt, and prd.json.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Chris Mathew",
+        "url": "https://github.com/Rumor-Group-Corporation"
+      },
+      "tags": [
+        "autonomous-agent",
+        "prd",
+        "task-automation",
+        "ai-loop"
+      ]
     }
   ]
 }

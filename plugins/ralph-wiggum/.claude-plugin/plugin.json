@@ -1,0 +1,22 @@
+{
+  "name": "ralph-wiggum",
+  "version": "1.0.0",
+  "description": "Ralph Wiggum - Autonomous AI agent loop that runs Claude Code repeatedly until all PRD items are complete. Based on Geoffrey Huntley's Ralph pattern. Each iteration spawns a fresh Claude instance with clean context. Memory persists via git history, progress.txt, and prd.json.",
+  "author": {
+    "name": "Chris Mathew",
+    "url": "https://github.com/Rumor-Group-Corporation"
+  },
+  "repository": "https://github.com/Rumor-Group-Corporation/rumor-plugins",
+  "license": "MIT",
+  "keywords": [
+    "autonomous-agent",
+    "prd",
+    "iterative-development",
+    "task-automation",
+    "product-requirements",
+    "user-stories",
+    "ai-loop"
+  ],
+  "commands": ["./commands/ralph.md", "./commands/prd.md", "./commands/ralph-status.md"],
+  "skills": ["./skills/prd-generator/", "./skills/ralph-converter/"]
+}

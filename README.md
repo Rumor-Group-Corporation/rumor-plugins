@@ -14,6 +14,13 @@ A personal [Claude Code](https://code.claude.com/docs/en/plugins) plugin marketp
 | Plugin | Description |
 |--------|-------------|
 | **thermos** | Thermo-nuclear branch review — deep correctness/security audits and harsh code-quality rubrics, run by parallel subagents. Vendored from [cursor/plugins](https://github.com/cursor/plugins/tree/main/thermos) (MIT) and repackaged in Claude Code plugin format. |
+| **ralph-wiggum** | Autonomous agent loop — runs Claude Code repeatedly until all PRD items are done, fresh context each iteration, memory persisted via git/`progress.txt`/`prd.json`. Based on Geoffrey Huntley's Ralph pattern. |
+
+### ralph-wiggum commands
+
+- `/ralph-wiggum:prd` — generate a structured `prd.json` from an idea or Linear issue
+- `/ralph-wiggum:ralph` — start the autonomous loop against a `prd.json`
+- `/ralph-wiggum:ralph-status` — check progress of a running loop
 
 ### thermos skills
 
