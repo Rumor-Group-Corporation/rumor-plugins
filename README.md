@@ -5,7 +5,7 @@ A personal [Claude Code](https://code.claude.com/docs/en/plugins) plugin marketp
 ## Install
 
 ```
-/plugin marketplace add chrismathew3/rumor-plugins
+/plugin marketplace add Rumor-Group-Corporation/rumor-plugins
 /plugin install thermos@rumor
 ```
 
