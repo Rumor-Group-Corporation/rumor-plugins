@@ -1,0 +1,30 @@
+{
+  "name": "rumor",
+  "owner": {
+    "name": "Chris Mathew",
+    "url": "https://github.com/chrismathew3"
+  },
+  "metadata": {
+    "description": "Rumor stack plugin marketplace for Claude Code",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "thermos",
+      "source": "./plugins/thermos",
+      "description": "Thermo-nuclear branch review: deep correctness/security audits and harsh code-quality rubrics with parallel subagents.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Cursor",
+        "email": "plugins@cursor.com"
+      },
+      "homepage": "https://github.com/cursor/plugins/tree/main/thermos",
+      "tags": [
+        "review",
+        "quality",
+        "security",
+        "subagents"
+      ]
+    }
+  ]
+}
