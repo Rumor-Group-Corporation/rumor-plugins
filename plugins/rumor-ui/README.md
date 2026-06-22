@@ -11,17 +11,23 @@ agent loads, enforces, and improves automatically.
 
 | Piece | Name | Does |
 |---|---|---|
-| **Command** | `/figma-screen <url>` | The full pipeline: extract -> map -> compose -> test -> verify -> ship. |
+| **Command** | `/figma-build <url>` | **The headline.** Generate, then self-correct in a loop: measure vs the Figma frame → fix the biggest delta → re-verify → residual gate, until pixel-perfect AND clean. |
+| **Command** | `/figma-ds-sync` | Generate/refresh the strict design-system artifacts (token-map.json, DESIGN.md, code-connect.json, CLAUDE rules). |
+| **Command** | `/figma-screen <url>` | The linear pipeline (no convergence loop): extract -> map -> compose -> test -> verify -> ship. |
 | **Command** | `/figma-audit <screen>` | Measure a built screen against its Figma frame + standards. |
 | **Command** | `/ui-verify` | Simulator loop: deep-link, screenshot, report what actually rendered. |
 | **Command** | `/ui-retro` | Fold a new learning back into the plugin. |
-| **Skill** | `figma-to-screen` | The master workflow that sequences the others. |
+| **Skill** | `figma-to-screen` | The master linear workflow. |
+| **Skill** | `rumor-strict-design-system` | The closed-vocabulary design system (token-map = can only emit tokens that exist). |
+| **Skill** | `rumor-ui-convergence-loop` | The self-correcting build-measure-fix loop + stopping criteria + experiment log. |
+| **Skill** | `rumor-ui-pixel-diff` | Numeric visual fidelity via Argent screenshot-diff vs the Figma frame (the MEASURE stage). |
 | **Skill** | `rumor-mobile-standards` | How we write code (AGENTS.md distilled + rationale). |
 | **Skill** | `rumor-behavior-testing` | The RNTL/jest harness + every gotcha we've already paid for. |
 | **Skill** | `rumor-ui-verify-loop` | The pixel-tight sim loop + native/runtime gotchas. |
 | **Agent** | `figma-design-extractor` | Turns a frame into an exact, code-ready brief. |
 | **Agent** | `rumor-ui-standards-reviewer` | Judgment-call standards review the hook can't do. |
-| **Hook** | `check-tsx-standards.sh` | Auto-flags hard standards violations the instant they're written. |
+| **Hook** | `check-tsx-standards.sh` | Auto-flags hard violations (any/StyleSheet/twrnc/arbitrary-Tailwind/raw color) the instant they're written. |
+| **Script** | `scripts/measure.sh` | Argent wrapper: launch → capture (retry) → screenshot-diff vs baseline → one JSON line (mismatch% + regions). |
 | **Ledger** | `LESSONS.md` | The consistently-improve log; reviewed like code. |
 
 ## Install

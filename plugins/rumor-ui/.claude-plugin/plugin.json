@@ -1,6 +1,6 @@
 {
   "name": "rumor-ui",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Figma -> code, the Rumor way. Turns a Figma frame into a standards-compliant, tested, verified UI screen in rumor-mobile-expo. Bundles the design-system workflow, our coding standards, the RNTL/jest harness gotchas, the simulator verify loop, an auto-enforcing standards hook, and a self-improving lessons ledger.",
   "author": {
     "name": "Chris Mathew",
@@ -20,6 +20,7 @@
     "testing"
   ],
   "commands": [
+    "./commands/figma-build.md",
     "./commands/figma-screen.md",
     "./commands/figma-ds-sync.md",
     "./commands/figma-audit.md",
@@ -29,6 +30,8 @@
   "skills": [
     "./skills/figma-to-screen/",
     "./skills/rumor-strict-design-system/",
+    "./skills/rumor-ui-convergence-loop/",
+    "./skills/rumor-ui-pixel-diff/",
     "./skills/rumor-mobile-standards/",
     "./skills/rumor-behavior-testing/",
     "./skills/rumor-ui-verify-loop/"

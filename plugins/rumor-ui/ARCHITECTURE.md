@@ -220,12 +220,14 @@ Generated artifacts (live in `rumor-mobile-expo`, not the plugin): `token-map.js
 
 ## 9. Build phases (suggested order)
 
-1. **DS layer** — `/figma-ds-sync` + the three artifacts + closed-vocabulary hook check.
-   (Highest leverage; makes *any* generation on-system even before the loop exists.)
-2. **Measure** — `rumor-ui-pixel-diff` skill wiring Argent (flow + diff + baseline=Figma).
-3. **Loop** — `rumor-ui-convergence-loop` + `/figma-build` + experiment log + residual gate.
-4. **Raise the floor** — import the §6 standards/review rules.
-5. **Compound** — `docs/solutions/ui-bugs/` + `CONCEPTS.md` + search-first routing.
+1. ✅ **DS layer** (v0.2.0) — `rumor-strict-design-system` skill + `/figma-ds-sync` +
+   real grounded templates (token-map/DESIGN) + closed-vocabulary hook check (raw color).
+2. ✅ **Measure** (v0.3.0) — `rumor-ui-pixel-diff` skill + `scripts/measure.sh` wiring Argent;
+   validated 3/3 live against the real dev client (file-based stdout, settle, retries).
+3. ✅ **Loop** (v0.3.0) — `rumor-ui-convergence-loop` + `/figma-build` + experiment-log format
+   + residual gate. *(Loop control authored; full e2e run pending a real Figma frame baseline.)*
+4. ⬜ **Raise the floor** — import the §6 standards/review rules into standards + reviewer.
+5. ⬜ **Compound** — `docs/solutions/ui-bugs/` + `CONCEPTS.md` + search-first routing.
 
 ## 10. Open questions / risks
 
