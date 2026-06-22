@@ -47,12 +47,17 @@ mkdir -p "$OUTDIR"
 # `argent run` auto-starts one too. NOTE: `server start` is foreground by default — never
 # call it inline here.
 
-# Optional: bring the app to a deterministic state before capture.
+# Optional: bring the app to a deterministic state before capture. Settle after each
+# navigation so the capture reflects the new screen, not the previous one (deep links and
+# launches animate/transition asynchronously). Override with NAV_SETTLE_SECS.
+NAV_SETTLE_SECS="${NAV_SETTLE_SECS:-3}"
 if [ "$LAUNCH" = 1 ] && [ -n "$BUNDLE" ]; then
   ARGENT run launch-app --udid "$UDID" --bundleId "$BUNDLE"
+  sleep "$NAV_SETTLE_SECS"
 fi
 if [ -n "$ROUTE" ]; then
   ARGENT run open-url --udid "$UDID" --url "$ROUTE"
+  sleep "$NAV_SETTLE_SECS"
 fi
 
 # Capture with cold-start retry (Argent's first capture on a fresh tool-server can fail with
@@ -77,28 +82,39 @@ fi
 sleep 2
 DIFF_OUT="$OUTDIR/diff-result.json"
 : > "$DIFF_OUT"
+diff_ok=0
 for _ in 1 2 3 4; do
   ARGENT run screenshot-diff --udid "$UDID" --baselinePath "$BASELINE" \
     --currentPath "$CURRENT" --outputDir "$OUTDIR" --json
   cp -f "$ARGENT_OUT" "$DIFF_OUT" 2>/dev/null || true
-  grep -q '"summary"' "$DIFF_OUT" 2>/dev/null && break
+  if grep -q '"summary"' "$DIFF_OUT" 2>/dev/null; then diff_ok=1; break; fi
   sleep 2
 done
 
-ERRTAIL="$(tail -c 300 "$ARGENT_ERR" 2>/dev/null | tr '\n' ' ')"
-ERRTAIL="$ERRTAIL" python3 - "$CURRENT" "$DIFF_OUT" <<'PY'
-import sys, os, json, re
+# Explicit failure: no attempt produced a parseable diff. Emit an error and a non-zero exit
+# so callers never mistake a failed MEASURE for a valid (e.g. mismatch_pct=null) measurement.
+if [ "$diff_ok" != 1 ]; then
+  ERRTAIL="$(tail -c 300 "$ARGENT_ERR" 2>/dev/null | tr '\n' ' ')"
+  printf '{"error":"diff_failed","stderr":"%s"}\n' "$(printf '%s' "$ERRTAIL" | sed 's/"/\\"/g')"
+  exit 1
+fi
+
+python3 - "$CURRENT" "$DIFF_OUT" <<'PY'
+import sys, json, re
 cur, diff_out = sys.argv[1], sys.argv[2]
 try:
-    raw = open(diff_out).read()
-    d = json.loads(raw)
-except Exception:
-    print(json.dumps({"error": "diff_parse_failed", "stderr": os.environ.get("ERRTAIL", "")[:300]})); sys.exit(0)
-s = d.get("summary", "")
+    d = json.loads(open(diff_out).read())
+    s = d.get("summary", "")
+except Exception as e:
+    print(json.dumps({"error": "diff_parse_failed", "detail": str(e)[:200]})); sys.exit(1)
+if not s:
+    print(json.dumps({"error": "diff_no_summary"})); sys.exit(1)
 m  = re.search(r'pixel_mismatch:\s*([\d.]+)%', s)
 st = re.search(r'status:\s*(\w+)', s)
+if not m:
+    print(json.dumps({"error": "diff_no_mismatch", "detail": s[:200]})); sys.exit(1)
 print(json.dumps({
-    "mismatch_pct": float(m.group(1)) if m else None,
+    "mismatch_pct": float(m.group(1)),
     "status": st.group(1) if st else None,
     "current": cur,
     "diffPath": d.get("diffPath"),

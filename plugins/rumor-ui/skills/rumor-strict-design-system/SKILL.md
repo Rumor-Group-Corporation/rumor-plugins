@@ -11,9 +11,9 @@ closed vocabulary and how it's enforced. Generate/refresh the artifacts with `/f
 
 ## The closed vocabulary — three artifacts (+ rules)
 
-These live in `rumor-mobile-expo`, generated from `tailwind.config.js` + `src/components/ui`
-+ the Figma file. See `templates/token-map.example.json` and `templates/DESIGN.example.md`
-in this plugin for the real, grounded format.
+These live in `rumor-mobile-expo`, generated from three sources: `tailwind.config.js`,
+`src/components/ui`, and the Figma file. See `templates/token-map.example.json` and
+`templates/DESIGN.example.md` in this plugin for the real, grounded format.
 
 ### 1. `token-map.json` — the keystone
 Maps every Figma variable to its `tailwind.config.js` key and the NativeWind class(es) it
