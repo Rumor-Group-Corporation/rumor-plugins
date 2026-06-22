@@ -74,6 +74,14 @@ if [ "$is_test" = false ]; then
   if out="$(hits '\[[0-9.]+(px|rem|em|vh|vw)\]|\[#[0-9a-fA-F]{3,8}\]')"; then
     [ -n "$out" ] && add "Arbitrary Tailwind value — use the scale or add a reusable token in tailwind.config.js:\n$(printf '%s' "$out" | sed 's/^/      /')"
   fi
+  # Closed-vocabulary backstop: hardcoded color literals in source (hex/rgb/rgba).
+  # The design system is the only source of color — resolve from tailwind.config.js /
+  # token-map.json, never inline a raw color. (Full per-class validation is the generator's
+  # job; this catches the high-precision escape a regex can own.)
+  color_pat='#[0-9a-fA-F]{6}|#[0-9a-fA-F]{3}|rgba?\('
+  if out="$(hits "$color_pat")"; then
+    [ -n "$out" ] && add "Hardcoded color literal — never inline hex/rgb; use a token (tailwind.config.js / token-map.json), per rumor-strict-design-system:\n$(printf '%s' "$out" | sed 's/^/      /')"
+  fi
 fi
 
 if [ -n "$violations" ]; then
