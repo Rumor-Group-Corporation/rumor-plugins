@@ -51,9 +51,17 @@ is a downscaled version safe to Read into context.
 - Export the frame at a resolution that **shares the capture's aspect ratio** — Argent's
   Lanczos normalize matches differing resolutions but **hard-fails on aspect mismatch**. Pin
   a reference device (e.g. iPhone 17 Pro) and export the frame to that logical size.
-- **Threshold:** font anti-aliasing inflates raw `mismatch_pct`. Don't chase 0%. Calibrate a
-  realistic TARGET (start ~2%) and lean on the OCR/font track + numeric tie-break for the last
-  mile rather than raw pixels. Record the calibrated TARGET per screen type in the run config.
+- **Threshold:** font anti-aliasing inflates raw `mismatch_pct`. Don't chase 0%. **Calibrated
+  TARGET ≈ 2–3%** for a *content-matched* screen (calibration run #1, `docs/CALIBRATION-guestlist.md`:
+  identical=0%, minor live change=0.52%, empty-vs-populated content gap=14.21%). Lean on the
+  OCR/font track + numeric tie-break for the last mile rather than raw pixels.
+- **Match content + state first.** The diff measures whatever is on screen — a high % often
+  means the app is on the wrong tab or has different data, NOT poor fidelity. Get the app to the
+  same tab + the same data as the frame (seed deterministic fixtures or pick a reproducible
+  frame) before trusting the number. Use the **region list** to localize the real delta even
+  when the global % is inflated by content.
+- **OCR track:** the text/typography lane reported `provider=ocr unavailable` in calibration —
+  pixel + region tracks work regardless; enable OCR for the typography last-mile.
 
 ## Gotchas (from the spike)
 

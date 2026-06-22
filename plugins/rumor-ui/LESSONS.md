@@ -65,4 +65,14 @@ added `rumor-ui-fix-library` (`docs/solutions/ui-bugs/` + `CONCEPTS.md` + search
 so every solved delta makes the next build faster.
 Home: `rumor-mobile-standards`, `rumor-ui-standards-reviewer`, `rumor-ui-fix-library`, `/ui-retro`.
 
+### 2026-06-22 — Calibration run #1: TARGET ≈ 2–3%; match content before trusting the %
+Symptom: live Guest List vs the real Figma frame diffed at 14.21% — but that was the empty
+"Invited" tab vs a populated "All" tab + banner, i.e. a content/state gap, not a fidelity gap.
+Rule: the diff measures whatever is on screen, so match tab + data state to the frame before the
+% means fidelity. Calibrated TARGET ≈ 2–3% on a content-matched screen (identical=0%, minor
+change=0.52%). Use the region list to localize even when the global % is inflated. Also: the
+Figma→baseline→capture→diff pipeline is proven on a real frame (aspect 0.28%<1%, normalize
+engaged); OCR text track was unavailable (enable for typography last-mile).
+Home: `rumor-ui-pixel-diff` + `docs/CALIBRATION-guestlist.md`.
+
 <!-- Append new lessons above this line. Newest first. -->
