@@ -79,6 +79,48 @@ The floating bottom tab bar (`src/components/app-tabs.tsx`) draws over every scr
 tab's stack. Full-screen pushed routes must hide it: add the route name to
 `FULLSCREEN_NESTED_ROUTES` in `AppTabBar` — don't re-implement the check.
 
+## Performance & architecture rules (RN-specific)
+
+Imported from the Vercel `react-native-skills` + dotneet `typescript-react-reviewer` research
+(2026-06-22) — the rules most worth enforcing that the base standards above don't already cover.
+
+**Component design**
+- **State = ground truth, not visuals.** Store the *cause* (`pressed`, `isOpen`, `index`), never
+  the derived visual (`scale`, `opacity`, `translateY`). Derive visuals via interpolation in the
+  animation layer. Minimize state; derive during render where you can.
+- **Compound components over polymorphic children.** `Button` + `ButtonText`/`ButtonIcon`, not a
+  `children: string | ReactNode` prop. Never accept a bare string child unless the component is a
+  `*Text` component. (This is also how Figma component variants should map to code.)
+- **Design-system re-export indirection.** App code imports primitives only through
+  `src/components/ui` — never directly from `react-native` / third-party packages. Wrap once, import
+  everywhere from the wrapper.
+- **No component defined inside another component** (re-creates the type every render → remounts).
+
+**Lists**
+- Virtualize (FlashList/LegendList) — never `.map()` a large array into a ScrollView.
+- Memoize the item component; pass **stable** function refs (`useCallback`) and **no inline
+  objects** as props.
+- `getItemType` for heterogeneous lists (separate recycling pools).
+- Never `key={index}` in a dynamic/reorderable list — use a stable id.
+
+**Animation & scroll**
+- Animate **only GPU props** (transform/opacity). Use `useDerivedValue`/interpolation.
+- Scroll position lives in a **shared value, never `useState`** (state churn = dropped frames).
+- Press feedback via `Gesture`/`Pressable`, not JS state toggles.
+- Pair every `borderRadius` with `borderCurve: 'continuous'`; use `gap` over child margins.
+
+**Correctness (block-merge)**
+- No `cond && <View/>` with a numeric `cond` (renders a stray `0`). Use `cond ? <View/> : null`.
+- All text inside `<Text>`.
+- `useEffect` that subscribes/sets must clean up. No direct state mutation (`.push`/`arr[i]=`).
+- No conditional hooks; complete dependency arrays.
+
+**TypeScript / data**
+- TanStack Query is the source of truth for server data — **never copy it into `useState`**.
+- Prefer `noUncheckedIndexedAccess` + `exactOptionalPropertyTypes` discipline (narrow indexed
+  access; don't pass `undefined` to required optionals).
+- Context pattern: null default + a null-checking hook + a memoized provider value.
+
 ## Definition of done
 
 ```bash

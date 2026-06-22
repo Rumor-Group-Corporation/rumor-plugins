@@ -18,6 +18,10 @@ The plugin is only as good as the lessons fed into it. Capture what just happene
    - A jest/RNTL gotcha -> `skills/rumor-behavior-testing/SKILL.md`.
    - A sim/native/runtime gotcha -> `skills/rumor-ui-verify-loop/SKILL.md`.
    - A workflow/process change -> `skills/figma-to-screen/SKILL.md`.
+   - A **solved Figma↔code visual delta** (spacing/color/typography/layout mismatch you fixed)
+     -> a new entry in `rumor-mobile-expo`'s `docs/solutions/ui-bugs/` per
+     [[rumor-ui-fix-library]] (so DIAGNOSE finds it next run). A new token mapping ->
+     `CONCEPTS.md`.
    - A Figma-node -> primitive/token mapping, or anything not yet fitting above ->
      `LESSONS.md` (the ledger), with a date and one-line context.
 3. **Edit the file** — append the rule in the existing voice/format. Keep it tight and

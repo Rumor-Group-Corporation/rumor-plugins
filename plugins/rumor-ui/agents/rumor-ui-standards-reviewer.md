@@ -13,25 +13,53 @@ violations the regex standards hook can't — placement, layering, reuse, token 
 The diff and/or a list of changed files (the parent collects them). Scope strictly to the
 changed files and the functions they touch.
 
-## Check, in order
+## Severity tiers (classify every finding)
 
-1. **Placement.** Route files thin (params/wiring/nav only, no bulky JSX)? Feature UI under
-   `src/components/<feature>/`, not flat at `src/components/`? Helpers in `src/lib/<feature>/`,
-   not inside routes/components? API behind `src/hooks/api/<feature>/` Query hooks?
-2. **Reuse.** Does new code re-implement an existing `src/components/ui/` primitive or a
-   `src/lib/` helper? Name the existing one to use instead.
-3. **Styling.** NativeWind `className` only. Flag `StyleSheet.create`, `twrnc`, static inline
-   `style`, arbitrary `[..]` values, and raw color/spacing literals that should be tokens in
-   `tailwind.config.js`. Flag theme keys named after one component.
-4. **TypeScript.** No `any`, no non-null `!`, no `@ts-ignore`/`@ts-nocheck`. `FC<Props>` for
-   props. Unused imports/vars removed. react-hooks dep arrays correct; no ref-read or
-   `setState` in render/effects (react-compiler rule).
-5. **State/data.** Server cache in TanStack Query (not duplicated in Zustand); stores small
-   and one-concern; no auth tokens in Zustand/plain storage; query keys stable + colocated.
-6. **Forms.** react-hook-form + zod + `zodResolver`; one schema per form; no inline validation.
+- **BLOCK** — correctness/standards violation that must not merge.
+- **HIGH** — real defect or perf regression; fix before ship unless justified.
+- **STYLE** — placement/cleanliness; fix or note.
+
+## Check, by tier
+
+**BLOCK (correctness + hard standards)**
+- `cond && <View/>` with a numeric/falsy-`0` condition; text not wrapped in `<Text>`.
+- `useEffect` that subscribes/sets state without cleanup; direct state mutation
+  (`.push`/`.splice`/`arr[i]=`); conditional hooks; incomplete dependency arrays.
+- `any`, non-null `!`, `@ts-ignore`/`@ts-nocheck`; ref-read or `setState` in render/effects.
+- `StyleSheet.create`, `twrnc`, static inline `style`, arbitrary `[..]` values, raw hex/rgb —
+  must be NativeWind classes resolvable through `token-map.json` (see `rumor-strict-design-system`).
+- `key={index}` in a dynamic/reorderable list.
+
+**HIGH (perf + architecture)**
+- Component defined inside another component (remounts every render).
+- List item not memoized; inline object/array props; inline (non-`useCallback`) handlers passed
+  to list items; missing `getItemType` on a heterogeneous list; a large array `.map()`ed into a
+  ScrollView instead of FlashList/LegendList.
+- Scroll position or animated value held in `useState` instead of a shared value; animating a
+  non-GPU prop (width/height/top) instead of transform/opacity.
+- Server data copied from TanStack Query into `useState`; query keys unstable/not colocated.
+- Polymorphic `string | ReactNode` children where a compound component (`Button`+`ButtonText`)
+  is the pattern; primitive imported directly from `react-native`/a package instead of via
+  `src/components/ui`.
+- `borderRadius` without `borderCurve: 'continuous'`; child margins where `gap` fits.
+
+**STYLE (placement, reuse, layering)**
+- Route files not thin (bulky JSX/`renderItem` in the route); feature UI flat at
+  `src/components/` instead of `src/components/<feature>/`; helpers inside routes/components
+  instead of `src/lib/<feature>/`; API not behind `src/hooks/api/<feature>/` Query hooks.
+- Re-implements an existing `src/components/ui/` primitive or `src/lib/` helper — name the
+  existing one. Theme keys named after one component. Forms not using react-hook-form + zod.
+
+## Symptom → likely cause (diagnostic aid)
+
+- *List janks / flickers on scroll* → unmemoized item, inline props, or `key={index}`.
+- *Animation stutters* → animating a non-GPU prop, or scroll position in `useState`.
+- *Re-renders on every keystroke* → component defined inline, or unstable prop/handler refs.
+- *Stale UI after a mutation* → server data copied into `useState` instead of read from Query.
+- *Off-brand color/spacing* → raw literal instead of a `token-map.json` token.
 
 ## Output
 
-Findings most-severe first: `file:line — rule violated — exact fix`. Separate **must-fix**
-(hard standard) from **nice-to-have**. If the changed files are clean, say so explicitly.
-Do not rewrite the code — report; the parent applies fixes.
+Findings most-severe first, each tagged `[BLOCK|HIGH|STYLE]`:
+`[TIER] file:line — rule violated — exact fix`. If the changed files are clean, say so
+explicitly. Do not rewrite the code — report; the parent applies fixes.

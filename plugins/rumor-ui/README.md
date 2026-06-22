@@ -21,6 +21,7 @@ agent loads, enforces, and improves automatically.
 | **Skill** | `rumor-strict-design-system` | The closed-vocabulary design system (token-map = can only emit tokens that exist). |
 | **Skill** | `rumor-ui-convergence-loop` | The self-correcting build-measure-fix loop + stopping criteria + experiment log. |
 | **Skill** | `rumor-ui-pixel-diff` | Numeric visual fidelity via Argent screenshot-diff vs the Figma frame (the MEASURE stage). |
+| **Skill** | `rumor-ui-fix-library` | The compounding store: solved deltas in `docs/solutions/ui-bugs/` + `CONCEPTS.md`, searched before re-fixing. |
 | **Skill** | `rumor-mobile-standards` | How we write code (AGENTS.md distilled + rationale). |
 | **Skill** | `rumor-behavior-testing` | The RNTL/jest harness + every gotcha we've already paid for. |
 | **Skill** | `rumor-ui-verify-loop` | The pixel-tight sim loop + native/runtime gotchas. |

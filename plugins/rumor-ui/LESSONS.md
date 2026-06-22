@@ -55,4 +55,14 @@ normalized region bounds), diagnoses regions, fixes, re-verifies, and gates on
 thermos/code-review/simplify. "Done" = visual ≤ TARGET AND gate clean AND simplified.
 Home: `rumor-ui-convergence-loop`, `rumor-ui-pixel-diff`, `/figma-build`, `scripts/measure.sh`.
 
+### 2026-06-22 — Phases 4 & 5: floor raised + compounding library
+Symptom: standards covered placement/styling/TS but not RN perf/correctness; solved deltas
+weren't captured, so each build re-diagnosed the same mismatches.
+Rule: imported RN perf/architecture/correctness rules (state=ground-truth, compound
+components, list recycling, GPU-only animation, falsy-`0`, effect cleanup) into
+`rumor-mobile-standards`; gave the reviewer BLOCK/HIGH/STYLE tiers + a symptom→cause table;
+added `rumor-ui-fix-library` (`docs/solutions/ui-bugs/` + `CONCEPTS.md` + search-FIRST DIAGNOSE)
+so every solved delta makes the next build faster.
+Home: `rumor-mobile-standards`, `rumor-ui-standards-reviewer`, `rumor-ui-fix-library`, `/ui-retro`.
+
 <!-- Append new lessons above this line. Newest first. -->

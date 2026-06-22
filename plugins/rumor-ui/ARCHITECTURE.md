@@ -226,8 +226,12 @@ Generated artifacts (live in `rumor-mobile-expo`, not the plugin): `token-map.js
    validated 3/3 live against the real dev client (file-based stdout, settle, retries).
 3. ✅ **Loop** (v0.3.0) — `rumor-ui-convergence-loop` + `/figma-build` + experiment-log format
    + residual gate. *(Loop control authored; full e2e run pending a real Figma frame baseline.)*
-4. ⬜ **Raise the floor** — import the §6 standards/review rules into standards + reviewer.
-5. ⬜ **Compound** — `docs/solutions/ui-bugs/` + `CONCEPTS.md` + search-first routing.
+4. ✅ **Raise the floor** (v0.4.0) — imported the §6 perf/architecture/correctness rules into
+   `rumor-mobile-standards` + rebuilt `rumor-ui-standards-reviewer` with BLOCK/HIGH/STYLE tiers
+   and a symptom→cause table.
+5. ✅ **Compound** (v0.4.0) — `rumor-ui-fix-library` skill: `docs/solutions/ui-bugs/` format +
+   `CONCEPTS.md` glossary + search-FIRST DIAGNOSE protocol; `/ui-retro` routes solved deltas
+   in; templates for both.
 
 ## 10. Open questions / risks
 
