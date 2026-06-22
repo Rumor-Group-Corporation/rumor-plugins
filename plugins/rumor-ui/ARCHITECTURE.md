@@ -229,8 +229,12 @@ Generated artifacts (live in `rumor-mobile-expo`, not the plugin): `token-map.js
 
 ## 10. Open questions / risks
 
-- **Argent + Expo dev-client** interplay: confirm Argent's `launch-app`/`flow` work against an
-  Expo *dev client* (deep-link reload), not just a release build. Validate in Phase 2 spike.
+- **Argent + Expo dev-client** interplay: ✅ **RETIRED (Phase 2 spike, 2026-06-22 — see
+  `docs/SPIKE-argent.md`).** Argent v0.12.1 `launch-app` launches the real Rumor dev client
+  (`com.alaboparallel.rumor-mobile-expo`) and `screenshot-diff` returns the consumable
+  `{summary(pixel_mismatch%, regions), diffPath, contextDiffPath}` shape. Argent also has a
+  CLI (`argent run <tool> --json`), so the loop can shell out. Remaining sub-items: route
+  deep-link via `open-url`/`flow` (not yet tested e2e); cold-start capture needs 2–3× retry.
 - **TARGET threshold** for "pixel-perfect enough": 2% pixel delta is a starting guess; calibrate
   against a few real Rumor screens (fonts/anti-aliasing inflate raw deltas — lean on the
   OCR/font pass + numeric tie-break, not just raw %).
