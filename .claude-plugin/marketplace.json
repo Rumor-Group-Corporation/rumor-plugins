@@ -10,6 +10,24 @@
   },
   "plugins": [
     {
+      "name": "rumor-ui",
+      "source": "./plugins/rumor-ui",
+      "description": "Figma -> code, the Rumor way. Turns a Figma frame into a standards-compliant, tested, verified UI screen in rumor-mobile-expo, with an auto-enforcing standards hook and a self-improving lessons ledger.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Chris Mathew",
+        "url": "https://github.com/Rumor-Group-Corporation"
+      },
+      "tags": [
+        "figma",
+        "design-to-code",
+        "expo",
+        "nativewind",
+        "ui",
+        "standards"
+      ]
+    },
+    {
       "name": "thermos",
       "source": "./plugins/thermos",
       "description": "Thermo-nuclear branch review: deep correctness/security audits and harsh code-quality rubrics with parallel subagents.",
