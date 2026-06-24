@@ -123,10 +123,17 @@ Imported from the Vercel `react-native-skills` + dotneet `typescript-react-revie
 
 ## Definition of done
 
+The five gates `mobile-ci.yml` runs, in CI order — match them exactly and run locally first:
+
 ```bash
-yarn lint && yarn typecheck && yarn format:check && yarn build
+yarn lint          # eslint src --max-warnings 0  (one warning fails CI)
+yarn typecheck     # tsc --noEmit
+yarn format:check  # prettier --check .
+yarn test --ci     # jest --ci --forceExit
+yarn build         # the repo's build verification
 ```
-No errors, no warnings. `yarn build` must succeed before declaring work complete.
+No errors, **no warnings** (`--max-warnings 0`). All five must pass before declaring work
+complete — and again after any merge, even a no-conflict one (see [[rumor-ui-verify-loop]]).
 
 ## Before creating anything
 

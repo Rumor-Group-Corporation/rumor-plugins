@@ -16,6 +16,7 @@ agent loads, enforces, and improves automatically.
 | **Command** | `/figma-screen <url>` | The linear pipeline (no convergence loop): extract -> map -> compose -> test -> verify -> ship. |
 | **Command** | `/figma-audit <screen>` | Measure a built screen against its Figma frame + standards. |
 | **Command** | `/ui-verify` | Simulator loop: deep-link, screenshot, report what actually rendered. |
+| **Command** | `/api-verify` | Probe the screen's backend endpoints with curl: 401-vs-404, right HTTP method, body matches the DTO. |
 | **Command** | `/ui-retro` | Fold a new learning back into the plugin. |
 | **Skill** | `figma-to-screen` | The master linear workflow. |
 | **Skill** | `rumor-strict-design-system` | The closed-vocabulary design system (token-map = can only emit tokens that exist). |
@@ -24,7 +25,8 @@ agent loads, enforces, and improves automatically.
 | **Skill** | `rumor-ui-fix-library` | The compounding store: solved deltas in `docs/solutions/ui-bugs/` + `CONCEPTS.md`, searched before re-fixing. |
 | **Skill** | `rumor-mobile-standards` | How we write code (AGENTS.md distilled + rationale). |
 | **Skill** | `rumor-behavior-testing` | The RNTL/jest harness + every gotcha we've already paid for. |
-| **Skill** | `rumor-ui-verify-loop` | The pixel-tight sim loop + native/runtime gotchas. |
+| **Skill** | `rumor-ui-verify-loop` | The pixel-tight sim loop + native/runtime/merge gotchas. |
+| **Skill** | `rumor-api-contract` | Verify the backend contract with curl (401-vs-404, HTTP method, DTO body) before/after wiring the data layer. |
 | **Agent** | `figma-design-extractor` | Turns a frame into an exact, code-ready brief. |
 | **Agent** | `rumor-ui-standards-reviewer` | Judgment-call standards review the hook can't do. |
 | **Hook** | `check-tsx-standards.sh` | Auto-flags hard violations (any/StyleSheet/twrnc/arbitrary-Tailwind/raw color) the instant they're written. |

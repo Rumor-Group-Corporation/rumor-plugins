@@ -25,11 +25,51 @@ automation); fall back to `xcrun simctl` + `idb` for anything they don't cover.
 ## Drive interactions + find targets
 
 ```bash
-idb ui describe-all --udid $U          # list elements; filter by AXLabel to find targets
+idb ui describe-all --udid $U          # raw AX dump (JSON) — pipe through the parser below
 idb ui tap  --udid $U <x> <y>
 idb ui swipe --udid $U <x1> <y1> <x2> <y2>
 idb ui text --udid $U "search query"
 ```
+
+**`idb` coordinates are POINTS, not screenshot PIXELS.** A simulator screenshot is 2×/3×
+the logical size, so a coord measured off `/tmp/shot.png` lands in the wrong place. Always
+tap the **center of the element's AX frame** (already in points), never a pixel read off the
+PNG. Drop this parser at `/tmp/uidesc.py` and feed it the describe dump — it prints
+`type | 'label' | cx cy` (frame centers, ready to `tap`):
+
+```python
+# /tmp/uidesc.py — usage: idb ui describe-all --udid $U | python3 /tmp/uidesc.py [filter]
+import sys, json, re
+rows = json.load(sys.stdin)
+needle = (sys.argv[1] if len(sys.argv) > 1 else "").lower()
+
+def center(el):
+    # idb versions differ: most emit a numeric `frame` object; some only the
+    # `AXFrame` string "{{x, y}, {w, h}}". Handle both so coords are never (0,0).
+    f = el.get("frame") or {}
+    if all(k in f for k in ("x", "y", "width", "height")):
+        return f["x"] + f["width"] / 2, f["y"] + f["height"] / 2
+    nums = re.findall(r"-?\d+\.?\d*", el.get("AXFrame", ""))
+    if len(nums) == 4:
+        x, y, w, h = map(float, nums)
+        return x + w / 2, y + h / 2
+    return 0, 0
+
+for el in rows:
+    cx, cy = center(el)
+    label = el.get("AXLabel") or el.get("AXValue") or el.get("title") or ""
+    t = el.get("type") or el.get("role") or "?"
+    line = f"{t} | '{label}' | cx={int(cx)} cy={int(cy)}"
+    if needle in line.lower():
+        print(line)
+```
+
+```bash
+idb ui describe-all --udid $U | python3 /tmp/uidesc.py "Remove"   # -> tap cx/cy directly
+```
+
+Re-describe after every tap to confirm navigation actually happened — a tap that "did
+nothing" is usually wrong coords (points-vs-pixels) or the element scrolled off-screen.
 
 ## Exercise the state matrix on a real device surface
 
@@ -60,7 +100,22 @@ If behavior doesn't match the code you wrote, suspect the **runtime** before the
   ( cd ios && rm -rf Pods Podfile.lock && pod install ) && npx expo run:ios --device "$U"
   ```
   (A stale `ExpoModulesCore` podspec is why the full `rm -rf` is needed, not a plain
-  `pod install`.)
+  `pod install`.) The rebuild is also the only fix when `dev` adds a native dep mid-branch
+  (`expo-print`, `expo-sharing`, `expo-audio`, Intercom) and your old binary redboxes on its
+  import. **Write the import defensively so a stale/absent binary degrades instead of
+  hard-crashing:** type-only import the SDK and lazy-`require()` it behind a null-guard, so
+  the whole app doesn't redbox at module-eval before any guard runs.
+  ```ts
+  import { type UserAttributes } from '@intercom/intercom-react-native'; // types only
+  let cached: IntercomModule | null = null, tried = false;
+  const getIntercom = () => {
+    if (!tried) { tried = true; try { const m = require('@intercom/intercom-react-native'); cached = m?.default ?? m; } catch { cached = null; } }
+    return cached;
+  };
+  // every call: const x = getIntercom(); if (!x) { logSkip(); return; }
+  ```
+  A top-level `import X from 'native-module'` evaluates the native module's constants at
+  import time and crashes the entire bundle when the native side is missing.
 - **Transient media errors latched as permanent.** A flat dark circle where a video should
   be was a transient `expo-video` `error` status treated as terminal. Fix: self-heal — on
   `error`, `player.replace(src)` + `play()` a bounded number of times before falling back.
@@ -69,6 +124,25 @@ If behavior doesn't match the code you wrote, suspect the **runtime** before the
   `env.ts`'s required keys first.
 - **Fast refresh lies under churn.** If hot reload won't apply, do a full terminate +
   dev-client reconnect before debugging your code.
+
+## Merging `dev` into a long-lived UI branch
+
+- **Adopt upstream, re-apply only net-new fixes.** When `dev` has rebuilt the same files more
+  completely, don't fight it file-by-file — take dev's version and re-apply only the changes
+  dev lacks. Resolve conflicts toward dev's tokens/mechanisms; keep your distinct fixes.
+- **A clean (no-conflict) merge can still be a semantic break.** Git merges text, not meaning:
+  dev refactoring a prop away (e.g. row navigation moved to a whole-row `Pressable`, deleting
+  `onAvatarPress`) leaves your call site referencing a name that no longer exists — zero
+  conflicts, red typecheck. **Always run the full gate after any merge, even one with no
+  conflicts**, and fold the post-merge fixes into the merge commit so history has no broken
+  intermediate:
+  ```bash
+  git merge origin/dev --no-edit            # auto-commits if no conflicts...
+  yarn install                              # ...the merge may have pulled new deps
+  # the full CI gate (same five, same order) — a clean text-merge won't tell you it broke:
+  yarn lint && yarn typecheck && yarn format:check && yarn test --ci && yarn build
+  git add -A && git commit --amend --no-edit
+  ```
 
 ## Watch CI deterministically
 

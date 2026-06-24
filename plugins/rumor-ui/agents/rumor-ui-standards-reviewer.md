@@ -29,6 +29,9 @@ changed files and the functions they touch.
 - `StyleSheet.create`, `twrnc`, static inline `style`, arbitrary `[..]` values, raw hex/rgb —
   must be NativeWind classes resolvable through `token-map.json` (see `rumor-strict-design-system`).
 - `key={index}` in a dynamic/reorderable list.
+- **Destructive/irreversible action with no confirmation** — a delete/remove/withdraw (esp.
+  bulk, esp. on a mixed-status "All" selection) that fires on a single tap. Must route through
+  a confirmation sheet (reuse the generic one, e.g. `DeleteGuestConfirmSheet`) before mutating.
 
 **HIGH (perf + architecture)**
 - Component defined inside another component (remounts every render).
@@ -38,6 +41,18 @@ changed files and the functions they touch.
 - Scroll position or animated value held in `useState` instead of a shared value; animating a
   non-GPU prop (width/height/top) instead of transform/opacity.
 - Server data copied from TanStack Query into `useState`; query keys unstable/not colocated.
+- **Bulk status-transition sends a raw/display status** — grouping a selection by `guest.status`
+  and POSTing it without the API normalization the per-status paths use (e.g. `SHORTLIST` must
+  fold to `APPLIED` via `normalizeGuestStatusForApi`/`tabToCurrentStatus`). The backend rejects
+  the un-normalized `currentStatus`. Group → normalize → one mutation per group.
+- **`placeholderData: keepPreviousData` without an `isPlaceholderData` pagination guard** — a
+  consumer that calls `fetchNextPage` on `hasNextPage && !isFetchingNextPage` will request a page
+  param from the *previous* query's loaded count while stale pages are shown. Gate it on
+  `!isPlaceholderData` (every paginating consumer of that hook).
+- **Selection affordance rendered when its action is disabled** — a checkbox/select control shown
+  while the bulk-action tray/permission is off (`!bulkActionsEnabled`), so tapping bumps the count
+  into a dead state with no actionable tray. Gate the affordance on the same permission
+  (`canSelect`), and test both shown and hidden.
 - Polymorphic `string | ReactNode` children where a compound component (`Button`+`ButtonText`)
   is the pattern; primitive imported directly from `react-native`/a package instead of via
   `src/components/ui`.
@@ -57,6 +72,10 @@ changed files and the functions they touch.
 - *Re-renders on every keystroke* → component defined inline, or unstable prop/handler refs.
 - *Stale UI after a mutation* → server data copied into `useState` instead of read from Query.
 - *Off-brand color/spacing* → raw literal instead of a `token-map.json` token.
+- *Bulk delete nukes rows with no prompt* → destructive action not routed through a confirm sheet.
+- *Bulk action 400s for some rows* → un-normalized `currentStatus` (raw `SHORTLIST`/display status).
+- *List skips its first pages after a tab/search switch* → `fetchNextPage` not guarded on `!isPlaceholderData`.
+- *Selecting a row does nothing / no tray* → selection affordance shown while its action is disabled.
 
 ## Output
 

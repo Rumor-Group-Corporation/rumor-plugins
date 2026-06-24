@@ -12,8 +12,8 @@
     {
       "name": "rumor-ui",
       "source": "./plugins/rumor-ui",
-      "description": "Figma -> code, the Rumor way. Turns a Figma frame into a standards-compliant, tested, verified UI screen in rumor-mobile-expo, with an auto-enforcing standards hook and a self-improving lessons ledger.",
-      "version": "0.1.0",
+      "description": "Figma -> code, the Rumor way. Turns a Figma frame into a standards-compliant, tested, verified UI screen in rumor-mobile-expo, with backend contract probing, an auto-enforcing standards hook, and a self-improving lessons ledger.",
+      "version": "0.5.0",
       "author": {
         "name": "Chris Mathew",
         "url": "https://github.com/Rumor-Group-Corporation"

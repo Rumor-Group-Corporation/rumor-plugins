@@ -46,6 +46,34 @@ is a downscaled version safe to Read into context.
   delta is ambiguous (anti-aliasing, sub-pixel), read the on-device computed frame/spacing/
   color and compare against the Figma token directly. Assert the number; don't eyeball it.
 
+## Getting the Figma baseline via the Figma MCP (the lightweight path)
+
+When you just need the frame PNG (no full Argent run), pull it straight from the Figma MCP:
+
+- **Recover the `fileKey`.** `get_screenshot` needs `fileKey` + `nodeId`, but links shared in
+  chat are often `?node-id=…` only. The `fileKey` is the segment after `/design/` in any
+  earlier full URL this session (e.g. `figma.com/design/xdHAlCUnMTugmDQRTxRmOC/…` →
+  `xdHAlCUnMTugmDQRTxRmOC`). If it's not in context, `grep` the session transcript for a
+  `figma.com/design/<key>` URL before asking the user. Keep a running `nodeId → screen` map.
+- **Fetch + download.** `get_screenshot({ fileKey, nodeId, maxDimension: 2048 })` returns a
+  **short-lived** asset URL (treat it like a secret). `curl -o <node>.png "<url>"` immediately —
+  don't re-read the URL, it expires — then Read the PNG and compare to a live sim capture.
+- `node-id` in a URL is `1-2`; the tool accepts `1-2` or `1:2`.
+
+## Is it a fidelity gap or a DATA gap? (diagnose before "fixing" the UI)
+
+A screen that doesn't match the frame is often **correct UI rendering absent data**, not a
+defect — and "fixing" the component would be wrong. Before touching layout:
+
+- **Figma shows populated content the build doesn't** (e.g. `@handle • 999K followers`, attendee
+  counts, badges) → suspect the **data/seed layer**, not the component. The mock frame always has
+  rich data; your QA env may not (`instagram_user_name` unset; the default list query omits social
+  stats unless `sortBy` requests them).
+- **Prove the component is right**: feed it the data in a unit test (a row test rendering
+  `@joshzip • 999K`). If it renders correctly with data, the gap is backend/seed — surface it as
+  a separate-PR decision, don't silently restyle the screen.
+- Only after data + tab + state match the frame is a residual delta a real fidelity bug.
+
 ## Getting a usable Figma baseline (calibration)
 
 - Export the frame at a resolution that **shares the capture's aspect ratio** — Argent's
