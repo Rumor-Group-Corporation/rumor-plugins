@@ -19,8 +19,19 @@ xcrun simctl openurl $U "$SCHEME://profile/rumor-mutuals"   # the target route
 xcrun simctl io $U screenshot /tmp/shot.png                  # then Read /tmp/shot.png
 ```
 
+**Deep-link with a scheme the dev build actually registered** — `rumorexpo`,
+`com.alaboparallel.rumor-mobile-expo` (the bundle id), or `exp+rumor`. The *production* app
+schemes (`rumor://`, `therumorapp://`) are NOT in the dev client, so `rumor://events/…`
+fails with `LSApplicationWorkspaceErrorDomain code=115` and you silently stay on the current
+screen. Discover the registered set from the installed app:
+`plutil -extract CFBundleURLTypes json -o - "$(xcrun simctl get_app_container $U $BID)/Info.plist"`.
+
 Prefer the **XcodeBuild MCP** tools when available (boot/build/run/screenshot/UI
-automation); fall back to `xcrun simctl` + `idb` for anything they don't cover.
+automation); fall back to `xcrun simctl` + `idb` for anything they don't cover. Note:
+XcodeBuild MCP `snapshot_ui`/`record_sim_video` need session defaults
+(`session-set-defaults { simulatorId }`) first, and its `tap` may be gated off — `simctl io
+$U recordVideo --codec h264 --force out.mp4` (SIGINT to finalize) + Argent taps is a reliable
+fallback for capturing a transition video.
 
 ## Drive interactions + find targets
 
@@ -30,6 +41,11 @@ idb ui tap  --udid $U <x> <y>
 idb ui swipe --udid $U <x1> <y1> <x2> <y2>
 idb ui text --udid $U "search query"
 ```
+
+**Argent `gesture-tap` uses NORMALIZED coords** (`--x 0.5 --y 0.9` = center-bottom), unlike
+`idb`'s points — so an Argent tap is resolution-independent and handy when you only have a
+screenshot to eyeball from (estimate the fraction of width/height). `idb` taps still need the
+AX-frame center in points (below).
 
 **`idb` coordinates are POINTS, not screenshot PIXELS.** A simulator screenshot is 2×/3×
 the logical size, so a coord measured off `/tmp/shot.png` lands in the wrong place. Always

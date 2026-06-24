@@ -23,8 +23,15 @@ harness), and [[rumor-ui-verify-loop]] (the simulator loop + native gotchas).
 3. **Know the done-gate** — the five CI gates: `yarn lint` (`--max-warnings 0`)
    `&& yarn typecheck && yarn format:check && yarn test --ci && yarn build`. Run locally
    before every push, and again after any merge (a clean text-merge can still break typecheck).
-4. Confirm the **Figma Dev Mode MCP** is reachable and the simulator + Metro are up
-   (see [[rumor-ui-verify-loop]]).
+4. Confirm the **Figma MCP** is reachable and the simulator + Metro are up
+   (see [[rumor-ui-verify-loop]]). **Use the REMOTE Figma server** — tools named
+   `mcp__plugin_figma_figma__*` (`get_metadata`/`get_design_context`/`get_variable_defs`/
+   `get_screenshot`/`get_code_connect_map`), which take explicit `fileKey` + `nodeId` and
+   authorize off the **org Dev seat** (`whoami` to confirm). Do NOT chase the desktop
+   **Dev Mode** server (`mcp__Figma__*`): it returns "enable the Dev Mode MCP Server", and
+   on a personal/View Figma seat that toggle never even appears in Preferences. The remote
+   server needs no desktop app, file-open, or seat change. `get_design_context` can blow the
+   token cap (~64k) — prefer metadata + variable_defs + screenshot, or hand it to a subagent.
 
 ## Phase 1 — Extract the design (measure, don't eyeball)
 
