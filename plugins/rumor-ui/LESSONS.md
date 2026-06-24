@@ -75,4 +75,33 @@ Figma→baseline→capture→diff pipeline is proven on a real frame (aspect 0.2
 engaged); OCR text track was unavailable (enable for typography last-mile).
 Home: `rumor-ui-pixel-diff` + `docs/CALIBRATION-guestlist.md`.
 
+### 2026-06-24 — RUM-7067 retro: review bug-classes, contract probing, merge + sim gotchas
+Symptom: shipping the collaborator guest-list/ticket feature, the operational lessons came from
+PR-review bots and the sim, not the happy path — and none were in the plugin yet. Codex/Bugbot
+caught four real bugs CI was green on; a clean `dev` merge red-failed typecheck; the sim wouldn't
+tap where I aimed; an endpoint "404'd" that was actually wired.
+Rule:
+- **Four recurring review bug-classes** → `rumor-ui-standards-reviewer` (BLOCK/HIGH + symptom rows):
+  destructive/bulk action with no confirmation (BLOCK); bulk status-transition sending a raw/
+  display status instead of the normalized `currentStatus` (`SHORTLIST`→`APPLIED`); `keepPreviousData`
+  without an `isPlaceholderData` pagination guard; a selection affordance rendered while its action
+  is disabled (dead selection state).
+- **Backend contract probing with curl** → new `rumor-api-contract` skill + `/api-verify` command:
+  401 = route wired/auth-gated (pass), 404 = missing **or a method mismatch** (Nest 404s an
+  unmatched verb — grep the service for PUT vs POST before concluding "missing"); match the body to
+  the DTO.
+- **`idb` coords are POINTS, not screenshot pixels** → `rumor-ui-verify-loop`, plus a shippable
+  `/tmp/uidesc.py` describe-parser (`type | 'label' | cx cy`); re-describe after every tap.
+- **A clean (no-conflict) merge can hide a semantic break** (dev refactored a prop away, orphaning a
+  call site → red typecheck) → `rumor-ui-verify-loop` merge-discipline section: adopt upstream, keep
+  net-new, run the full gate after *any* merge. Done-gate tightened to the literal 5 CI gates
+  (added `test`, `--max-warnings 0`) in `rumor-mobile-standards` + `figma-to-screen`.
+- **Lazy-require native modules** so a stale/absent binary degrades instead of redboxing at import
+  → `rumor-ui-verify-loop` native gotchas (complements the rebuild recipe).
+- **Figma gap ≠ UI defect**: populated mock vs unseeded data (e.g. `@handle • followers`) is a data/
+  seed gap — prove the component with a unit test before restyling → `rumor-ui-pixel-diff`; same skill
+  now documents fileKey recovery + `get_screenshot(fileKey,nodeId)`→curl-PNG as a first-class baseline.
+Home: `rumor-ui-standards-reviewer`, `rumor-api-contract` (+`/api-verify`), `rumor-ui-verify-loop`,
+`rumor-ui-pixel-diff`, `rumor-mobile-standards`, `figma-to-screen`; version bumped 0.4.0 → 0.5.0.
+
 <!-- Append new lessons above this line. Newest first. -->

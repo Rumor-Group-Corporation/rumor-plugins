@@ -20,8 +20,9 @@ harness), and [[rumor-ui-verify-loop]] (the simulator loop + native gotchas).
 1. **Clean branch off the integration branch** (`dev` for `rumor-mobile-expo`). Never
    branch off unrelated WIP — it's the #1 cause of "why is this file in my PR."
 2. **Open a draft PR immediately** so CI + review bots run from commit one.
-3. **Know the done-gate:** `yarn lint && yarn typecheck && yarn format:check && yarn build`.
-   Run it locally before every push.
+3. **Know the done-gate** — the five CI gates: `yarn lint` (`--max-warnings 0`)
+   `&& yarn typecheck && yarn format:check && yarn test --ci && yarn build`. Run locally
+   before every push, and again after any merge (a clean text-merge can still break typecheck).
 4. Confirm the **Figma Dev Mode MCP** is reachable and the simulator + Metro are up
    (see [[rumor-ui-verify-loop]]).
 
@@ -56,7 +57,9 @@ Follow [[rumor-mobile-standards]] exactly. The shape:
 - **Thin route** under `src/app/` (params, query/mutation wiring, navigation only).
 - **Feature components** under `src/components/<feature>/` (the JSX).
 - **Helpers/domain logic** in `src/lib/<feature>/`; **API** in a services layer behind
-  `src/hooks/api/` TanStack Query hooks; **client state** in a focused Zustand store.
+  `src/hooks/api/` TanStack Query hooks; **client state** in a focused Zustand store. Before
+  wiring a hook to a new endpoint, probe the contract (path + method + body) per
+  [[rumor-api-contract]] / `/api-verify` — a wrong verb 404s exactly like a missing route.
 - NativeWind `className` only. `FC<Props>`. No `any`, no non-null `!`, no `@ts-ignore`.
 
 The standards hook (PostToolUse) will flag violations as you write — treat its output as a
