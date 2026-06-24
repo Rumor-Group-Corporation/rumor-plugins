@@ -35,6 +35,18 @@ Always cover the **state matrix**, not just the happy path.
   `({ children }) => children` — **no JSX / no `createElement`** in the factory.
 - **`jest.mock` factory variables must be `mock`-prefixed** (`mockFoo`) or jest rejects the
   out-of-scope reference.
+- **The shared `BottomSheet` can't mount under jest** — `@/components/ui/bottom-sheet`
+  imports `scheduleOnRN` from `react-native-worklets` (native part uninitialized) and renders
+  a `GestureDetector` (needs `Reanimated.useEvent`) on `.set()/.get()` shared values. Don't
+  whack-a-mole the global reanimated/worklets mocks; **mock the module in the test**:
+  `jest.mock('@/components/ui/bottom-sheet', () => ({ BottomSheet: ({ open, children }) => open ? children : null }))`.
+  Return `children` directly — **no `createElement`** (NativeWind rewrites it → out-of-scope
+  error). Type the params with an inline `import('react').ReactNode` (erased, so it won't trip
+  the hoist rule) to satisfy `noImplicitAny`. Text-based assertions then pass unchanged. (No
+  BottomSheet-based drawer is unit-tested otherwise — find-contacts/recipients have no tests.)
+- **Babel's jest-hoist reads identifiers inside type annotations** in a mock factory — an
+  `as (prev: T) => T` cast flags `prev` as "out-of-scope". Keep factory types simple (drop the
+  cast / use `unknown`), since the factory only needs runtime behavior, not precise types.
 - **Don't replace the whole `expo` module** — `expo-image` needs `requireNativeModule`.
   Spread `...(jest.requireActual('expo') as object)` and override just what you need
   (e.g. `useEvent`).

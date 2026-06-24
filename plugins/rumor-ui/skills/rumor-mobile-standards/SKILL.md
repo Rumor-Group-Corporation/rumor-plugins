@@ -79,6 +79,17 @@ The floating bottom tab bar (`src/components/app-tabs.tsx`) draws over every scr
 tab's stack. Full-screen pushed routes must hide it: add the route name to
 `FULLSCREEN_NESTED_ROUTES` in `AppTabBar` — don't re-implement the check.
 
+## Overlays & drawers (match the app, don't mix systems)
+
+Two overlay systems exist and they animate differently: `ui/dialog` (`DialogSheetContent`,
+a Reanimated layout slide) and `ui/bottom-sheet` (`BottomSheet`, the gesture-driven
+`BOTTOM_SHEET_SPRING_CONFIG` — heavily damped, `overshootClamping`, drag-to-dismiss). The
+network/announcements drawers use **`BottomSheet`**; a screen that uses `Dialog` for a
+"drawer" will look off next to them (fast/bouncy slide vs the app's settle — RUM-7842). Rule:
+a bottom-anchored **drawer that should match the app's other drawers uses the shared
+`BottomSheet`**; reserve `Dialog` for centered modals / quick confirms. Don't introduce a
+third sheet system — both already exist.
+
 ## Performance & architecture rules (RN-specific)
 
 Imported from the Vercel `react-native-skills` + dotneet `typescript-react-reviewer` research

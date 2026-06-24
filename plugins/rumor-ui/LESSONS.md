@@ -104,4 +104,31 @@ Rule:
 Home: `rumor-ui-standards-reviewer`, `rumor-api-contract` (+`/api-verify`), `rumor-ui-verify-loop`,
 `rumor-ui-pixel-diff`, `rumor-mobile-standards`, `figma-to-screen`; version bumped 0.4.0 → 0.5.0.
 
+### 2026-06-24 — RUM-7116 + RUM-7842 retro: Figma remote MCP, BottomSheet-in-jest, dev-client deep-links, drawer consistency
+Symptom: building the People-In-Town host screen and fixing the Mutuals drawer surfaced four
+manual/surprising things. The desktop Figma "Dev Mode" MCP only said "enable Dev Mode" and the
+toggle wasn't even available (personal/View seat); a `BottomSheet`-based component's test
+wouldn't run under jest; `rumor://…` deep-links silently no-op'd in the dev client; and the
+Mutuals intro drawer felt fast/bouncy because it used `Dialog` while every other drawer uses
+`BottomSheet`.
+Rule:
+- **Figma = the REMOTE server** `mcp__plugin_figma_figma__*` (explicit `fileKey`+`nodeId`,
+  authorized by the **org Dev seat** — `whoami` to confirm), NOT the desktop Dev Mode
+  `mcp__Figma__*`. No desktop app / toggle / seat change needed. → `figma-to-screen` Phase 0.
+- **The shared `BottomSheet` can't mount under jest** (worklets `scheduleOnRN` + gesture-handler
+  `useEvent` + `.set()/.get()` shared values). Mock the *module* to
+  `({ open, children }) => open ? children : null` (no `createElement`; inline
+  `import('react').ReactNode` type) instead of patching global mocks. → `rumor-behavior-testing`.
+- **Dev-client deep-links need a registered scheme** (`rumorexpo` / the bundle id /
+  `exp+rumor`), not the production `rumor://` (→ `LSApplicationWorkspaceError 115`). Discover via
+  `plutil -extract CFBundleURLTypes` on the installed app. Argent `gesture-tap` is normalized
+  (0–1); `simctl recordVideo` + Argent taps captures a transition when MCP video/tap is gated.
+  → `rumor-ui-verify-loop`.
+- **Drawers that should match the app use the shared `BottomSheet`**, not `Dialog` (different
+  animation systems). → `rumor-mobile-standards` (Overlays & drawers).
+- **Token mapping:** Figma `Display/Title 1` hero stat number → `text-64` / `leading-72` /
+  `tracking-tight-xl` (-2px) — added deliberately to `tailwind.config.js` + `token-map.json`.
+Home: `figma-to-screen`, `rumor-behavior-testing`, `rumor-ui-verify-loop`, `rumor-mobile-standards`;
+version bumped 0.5.0 → 0.5.1.
+
 <!-- Append new lessons above this line. Newest first. -->
