@@ -39,16 +39,27 @@ PNG. Drop this parser at `/tmp/uidesc.py` and feed it the describe dump — it p
 
 ```python
 # /tmp/uidesc.py — usage: idb ui describe-all --udid $U | python3 /tmp/uidesc.py [filter]
-import sys, json
+import sys, json, re
 rows = json.load(sys.stdin)
 needle = (sys.argv[1] if len(sys.argv) > 1 else "").lower()
-for el in rows:
+
+def center(el):
+    # idb versions differ: most emit a numeric `frame` object; some only the
+    # `AXFrame` string "{{x, y}, {w, h}}". Handle both so coords are never (0,0).
     f = el.get("frame") or {}
-    cx = int(f.get("x", 0) + f.get("width", 0) / 2)
-    cy = int(f.get("y", 0) + f.get("height", 0) / 2)
-    label = el.get("AXLabel") or el.get("AXValue") or ""
+    if all(k in f for k in ("x", "y", "width", "height")):
+        return f["x"] + f["width"] / 2, f["y"] + f["height"] / 2
+    nums = re.findall(r"-?\d+\.?\d*", el.get("AXFrame", ""))
+    if len(nums) == 4:
+        x, y, w, h = map(float, nums)
+        return x + w / 2, y + h / 2
+    return 0, 0
+
+for el in rows:
+    cx, cy = center(el)
+    label = el.get("AXLabel") or el.get("AXValue") or el.get("title") or ""
     t = el.get("type") or el.get("role") or "?"
-    line = f"{t} | '{label}' | cx={cx} cy={cy}"
+    line = f"{t} | '{label}' | cx={int(cx)} cy={int(cy)}"
     if needle in line.lower():
         print(line)
 ```
@@ -128,7 +139,8 @@ If behavior doesn't match the code you wrote, suspect the **runtime** before the
   ```bash
   git merge origin/dev --no-edit            # auto-commits if no conflicts...
   yarn install                              # ...the merge may have pulled new deps
-  yarn typecheck && yarn lint && yarn test --ci && yarn build   # ...which a clean text-merge won't tell you
+  # the full CI gate (same five, same order) — a clean text-merge won't tell you it broke:
+  yarn lint && yarn typecheck && yarn format:check && yarn test --ci && yarn build
   git add -A && git commit --amend --no-edit
   ```
 
