@@ -59,6 +59,22 @@
         "task-automation",
         "ai-loop"
       ]
+    },
+    {
+      "name": "vercel",
+      "source": "./plugins/vercel",
+      "description": "Vercel's official MCP server — manage projects and deployments and read build/runtime logs from Claude Code.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Rumor Group",
+        "url": "https://github.com/Rumor-Group-Corporation"
+      },
+      "tags": [
+        "vercel",
+        "mcp",
+        "deployments",
+        "devops"
+      ]
     }
   ]
 }

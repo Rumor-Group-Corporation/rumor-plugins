@@ -1,0 +1,20 @@
+{
+  "name": "vercel",
+  "version": "1.0.0",
+  "description": "Vercel's official MCP server — manage projects and deployments and read build/runtime logs from Claude Code.",
+  "author": {
+    "name": "Rumor Group",
+    "url": "https://github.com/Rumor-Group-Corporation"
+  },
+  "homepage": "https://vercel.com/docs/mcp/vercel-mcp",
+  "repository": "https://github.com/Rumor-Group-Corporation/rumor-plugins",
+  "license": "MIT",
+  "keywords": ["vercel", "mcp", "deployments", "devops", "hosting"],
+  "mcpServers": {
+    "vercel": {
+      "type": "http",
+      "url": "https://mcp.vercel.com",
+      "oauth": {}
+    }
+  }
+}
