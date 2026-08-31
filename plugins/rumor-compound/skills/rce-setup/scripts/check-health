@@ -68,14 +68,33 @@ fi
 # --- docs_root ---
 CFG="$REPO_ROOT/.compound-engineering/config.yaml"
 DOCS_ROOT="docs"
+DOCS_ROOT_INVALID=""
 if [ -f "$CFG" ]; then
-  V="$(grep -E '^\s*docs_root\s*:' "$CFG" | head -1 | sed 's/.*:\s*//; s/#.*//; s/[[:space:]]*$//; s/^["'"'"']//; s/["'"'"']$//')"
-  [ -n "$V" ] && DOCS_ROOT="$V"
+  # BSD/macOS sed has no \s — use [[:space:]] and trim in explicit steps.
+  V="$(grep -E '^[[:space:]]*docs_root[[:space:]]*:' "$CFG" | head -1 \
+        | sed -E 's/^[[:space:]]*docs_root[[:space:]]*:[[:space:]]*//' \
+        | sed -E 's/[[:space:]]*#.*$//' \
+        | sed -E 's/[[:space:]]+$//' \
+        | sed -E 's/^["'"'"']//; s/["'"'"']$//')"
   echo "Config:    $CFG ✓"
+  if [ -n "$V" ]; then
+    # Contract: repo-relative dir, inside the repo, not the root, not under .git/.
+    case "$V" in
+      /*)                      DOCS_ROOT_INVALID="absolute path" ;;
+      .|./)                    DOCS_ROOT_INVALID="is the repo root" ;;
+      ..|../*|*/..|*/../*)     DOCS_ROOT_INVALID="escapes the repo (..)" ;;
+      .git|.git/*|*/.git|*/.git/*) DOCS_ROOT_INVALID="under .git/" ;;
+      *)                       DOCS_ROOT="$V" ;;
+    esac
+  fi
 else
   echo "Config:    none (defaults apply) — /rce-setup can write one"
 fi
-echo "Artifacts: $DOCS_ROOT/{plans,solutions,ideation}"
+if [ -n "$DOCS_ROOT_INVALID" ]; then
+  echo "Artifacts: ⚠ INVALID docs_root '$V' ($DOCS_ROOT_INVALID) — artifacts will NOT be written until this is fixed in $CFG"
+else
+  echo "Artifacts: $DOCS_ROOT/{plans,solutions,ideation}"
+fi
 echo
 
 echo "Notes:"

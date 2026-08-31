@@ -69,6 +69,12 @@ Then:
 
 ## Step 6 — Hand off to babysit (completion gate)
 
-The run is **not done** until `rce-babysit` owns the PR (LAW 4/8 live there). Invoke
-**`rce-babysit <pr-url>`** unless `babysit:off` or the PR is a draft. If babysit
-cannot start, stop and report it blocked — no other watcher substitutes.
+**`mode:pipeline` (rce-lfg) returns here — do not babysit.** The pipeline caller
+owns the next stage and runs babysit itself; starting it here would double the CI
+polling and bot handling and could run a second pass against an already-merged PR.
+In `mode:pipeline`, return the PR URL to the caller and stop.
+
+Otherwise (standalone) the run is **not done** until `rce-babysit` owns the PR
+(LAW 4/8 live there). Invoke **`rce-babysit <pr-url>`** unless `babysit:off` or the
+PR is a draft. If babysit cannot start, stop and report it blocked — no other
+watcher substitutes.

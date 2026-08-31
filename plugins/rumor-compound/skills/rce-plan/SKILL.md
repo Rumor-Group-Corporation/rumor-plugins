@@ -1,7 +1,7 @@
 ---
 name: rce-plan
 description: "Create a structured implementation plan for a Rumor repo, anchored to a Linear issue and written to docs/plans/. Use when asked to plan, break down, or scope work before building. Research and decide only -- never implement (that is rce-work). Rumor compound-engineering loop."
-argument-hint: "[feature/task, or a Linear issue id, or a plan path to deepen]"
+argument-hint: "[feature/task, or a Linear issue id, or a plan path to deepen] [mode:non-interactive for rce-lfg]"
 ---
 
 # rce-plan — a plan an implementer can start from
@@ -13,6 +13,12 @@ idea; this skill decides **how**; `rce-work` builds it.
 **Research, decide, write the plan — never implement.** No production code, no
 tests, no "change it to see what happens." Directional pseudo-code to communicate
 design is fine.
+
+**Interaction mode.** In `mode:non-interactive` (how `rce-lfg` invokes this skill),
+ask nothing and pause for nothing: always produce a **Durable** plan, compose the
+scope summary for yourself, record every inferred choice under Assumptions, and
+proceed straight through to the written plan. Skip the Phase 3 menu — return the
+plan path and the issue id instead. Interactive runs behave as written below.
 
 ## Load first (required)
 
@@ -31,9 +37,10 @@ is the requirement of record. If there is genuinely no issue and the work is mor
 than trivial, **create one** (`save_issue`, autonomous per LAW 9) so the plan has
 an anchor, and note its id.
 
-Pause and show a one-paragraph **scope summary** — the issue, the surfaces the
-change touches, what is in and out — and confirm before deep research. Record any
-inferred scope under an Assumptions heading.
+Compose a one-paragraph **scope summary** — the issue, the surfaces the change
+touches, what is in and out. In an **interactive** run, show it and confirm before
+deep research. In **`mode:non-interactive`**, do not pause: record every inferred
+scope choice under an Assumptions heading and proceed.
 
 **Size the output** (pick one, fail toward the heavier):
 - **Direct** — one-pass change, no decision the user would weigh: state it in a few
@@ -71,6 +78,8 @@ Post the plan link onto the Linear issue as a comment (`save_comment`, autonomou
 and move the issue forward to In Progress if it is not already (`list_issue_statuses`
 → `save_issue`; forward-only per LAW 9).
 
-Then present exactly: **"Plan ready at `<abs path>`. Next?"** with a menu:
-**Build it** (`rce-work <plan-path>`) · **Deepen the plan** · **Adjust scope** ·
-**Stop.** Rendering the menu is not done — execute the selection.
+Then, **interactive only**, present exactly: **"Plan ready at `<abs path>`. Next?"**
+with a menu: **Build it** (`rce-work <plan-path>`) · **Deepen the plan** ·
+**Adjust scope** · **Stop.** Rendering the menu is not done — execute the selection.
+In `mode:non-interactive`, present no menu: return the plan path and the issue id
+to the caller and stop.

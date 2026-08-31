@@ -30,8 +30,10 @@ threads through every step and every artifact.
 
 ## Step 1 — Plan
 
-Invoke **`rce-plan`** with the issue id. **GATE — STOP** if it reports the task is
-non-software, returns `blocked`, or writes no plan. Record the plan path; it feeds
+Invoke **`rce-plan`** with `mode:non-interactive` and the issue id (the mode is
+required — without it `rce-plan` pauses for scope confirmation and stalls this
+hands-off run). **GATE — STOP** if it reports the task is non-software, returns
+`blocked`, or writes no plan. Record the plan path; it feeds
 steps 2 and 3.
 
 ## Step 2 — Work (return-to-caller)

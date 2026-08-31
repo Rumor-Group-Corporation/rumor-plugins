@@ -18,6 +18,10 @@ implementation and verification only — no review, no PR; the caller owns those
 3. `../rumor-compound/references/worktree.md` — isolation, in full, **before any
    branch move or edit**.
 4. `../rumor-compound/references/linear.md` — the issue this work is against.
+5. `../rumor-compound/references/config.md` — the repo's optional `verify_cmd`
+   override. A repo can pin a non-standard verify command here; miss this read and
+   you would derive the wrong command from `repos.md` and report a change verified
+   without running the gate the operator configured.
 
 If any required reference cannot be read, stop before editing and report it — do
 not reconstruct the worktree or verify mechanics from memory.
@@ -47,7 +51,9 @@ For each task, in order:
 1. **Follow the patterns already in this repo** — the plan named them; match the
    surrounding code's idioms, not a generic best practice.
 2. Implement the task.
-3. **Verify** with the repo's real command (`repos.md`): typecheck first (the
+3. **Verify** with the repo's real command: use `verify_cmd` from
+   `.compound-engineering/config.yaml` when the repo sets it (`config.md`),
+   otherwise derive it from `package.json` per `repos.md` — typecheck first (the
    cheapest signal; on backend it is the root ratchet), then lint/test as present.
    On `rumor-backend-services`, jest runs **from the worktree root**. Address every
    command with `-C "$WT"` / an explicit path (LAW 3).
