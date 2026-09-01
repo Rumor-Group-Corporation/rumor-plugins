@@ -1,0 +1,105 @@
+#!/usr/bin/env bash
+# rce-setup health check. Read-only. Detects repo, package manager, verify command,
+# worktree convention, docs_root, and available reviewers for the Rumor compound loop.
+set -uo pipefail
+
+CWD="$(pwd)"
+REPO_ROOT="$(git -C "$CWD" rev-parse --show-toplevel 2>/dev/null)"
+if [ -z "$REPO_ROOT" ]; then
+  echo "✗ Not inside a git repo. cd into a Rumor repo and re-run."
+  exit 0
+fi
+REPO_NAME="$(basename "$REPO_ROOT")"
+REMOTE="$(git -C "$REPO_ROOT" remote get-url origin 2>/dev/null || echo '(none)')"
+BRANCH="$(git -C "$REPO_ROOT" rev-parse --abbrev-ref HEAD 2>/dev/null || echo '(detached)')"
+ISSUE_ID="$(printf '%s' "$BRANCH" | grep -oiE '[a-z]+-[0-9]+' | head -1 | tr a-z A-Z)"
+[ -z "$ISSUE_ID" ] && ISSUE_ID="(none in branch)"
+
+echo "Rumor Compound Engineering — health check"
+echo "========================================="
+echo "Repo:      $REPO_NAME"
+echo "Remote:    $REMOTE"
+case "$REMOTE" in
+  *Rumor-Group-Corporation/*) echo "           ✓ Rumor org" ;;
+  *) echo "           ⚠ not a Rumor-Group-Corporation remote" ;;
+esac
+echo "Branch:    $BRANCH"
+echo "Linear:    $ISSUE_ID"
+echo
+
+# --- package manager ---
+PM="npm"; RUN="npm run"
+if   [ -f "$REPO_ROOT/bun.lock" ] || [ -f "$REPO_ROOT/bun.lockb" ]; then PM="bun";  RUN="bun run"
+elif [ -f "$REPO_ROOT/pnpm-lock.yaml" ];                                 then PM="pnpm"; RUN="pnpm run"
+elif [ -f "$REPO_ROOT/yarn.lock" ];                                      then PM="yarn"; RUN="yarn"
+elif [ -f "$REPO_ROOT/package-lock.json" ];                              then PM="npm";  RUN="npm run"
+fi
+echo "Pkg mgr:   $PM"
+
+# --- verify command from package.json scripts ---
+VERIFY=""
+if [ -f "$REPO_ROOT/package.json" ] && command -v node >/dev/null 2>&1; then
+  VERIFY="$(node -e '
+    try {
+      const s=require(process.argv[1]).scripts||{};
+      const order=["typecheck","type-check","lint","test","test:unit","check"];
+      const seen=new Set(); const out=[];
+      for (const k of order){ if(s[k]){ const base=k.replace("type-check","typecheck"); if(!seen.has(base)){seen.add(base); out.push(k);} } }
+      process.stdout.write(out.join(" && ").length?out.map(k=>process.argv[2]+" "+k).join(" && "):"");
+    } catch(e){ process.stdout.write(""); }
+  ' "$REPO_ROOT/package.json" "$RUN" 2>/dev/null)"
+fi
+if [ -n "$VERIFY" ]; then
+  echo "Verify:    $VERIFY"
+else
+  echo "Verify:    (no standard script found — set verify_cmd in config, or terraform plan for infra repos)"
+fi
+echo
+
+# --- worktrees (sibling convention) ---
+WT_PARENT="$REPO_ROOT/../$REPO_NAME-worktrees"
+if [ -d "$WT_PARENT" ]; then
+  N="$(find "$WT_PARENT" -maxdepth 1 -mindepth 1 -type d 2>/dev/null | wc -l | tr -d ' ')"
+  echo "Worktrees: $REPO_NAME-worktrees/  ($N live)"
+else
+  echo "Worktrees: none yet — rce-work will create $REPO_NAME-worktrees/<slug>"
+fi
+
+# --- docs_root ---
+CFG="$REPO_ROOT/.compound-engineering/config.yaml"
+DOCS_ROOT="docs"
+DOCS_ROOT_INVALID=""
+if [ -f "$CFG" ]; then
+  # BSD/macOS sed has no \s — use [[:space:]] and trim in explicit steps.
+  V="$(grep -E '^[[:space:]]*docs_root[[:space:]]*:' "$CFG" | head -1 \
+        | sed -E 's/^[[:space:]]*docs_root[[:space:]]*:[[:space:]]*//' \
+        | sed -E 's/[[:space:]]*#.*$//' \
+        | sed -E 's/[[:space:]]+$//' \
+        | sed -E 's/^["'"'"']//; s/["'"'"']$//')"
+  echo "Config:    $CFG ✓"
+  if [ -n "$V" ]; then
+    # Contract: repo-relative dir, inside the repo, not the root, not under .git/.
+    case "$V" in
+      /*)                      DOCS_ROOT_INVALID="absolute path" ;;
+      .|./)                    DOCS_ROOT_INVALID="is the repo root" ;;
+      ..|../*|*/..|*/../*)     DOCS_ROOT_INVALID="escapes the repo (..)" ;;
+      .git|.git/*|*/.git|*/.git/*) DOCS_ROOT_INVALID="under .git/" ;;
+      *)                       DOCS_ROOT="$V" ;;
+    esac
+  fi
+else
+  echo "Config:    none (defaults apply) — /rce-setup can write one"
+fi
+if [ -n "$DOCS_ROOT_INVALID" ]; then
+  echo "Artifacts: ⚠ INVALID docs_root '$V' ($DOCS_ROOT_INVALID) — artifacts will NOT be written until this is fixed in $CFG"
+else
+  echo "Artifacts: $DOCS_ROOT/{plans,solutions,ideation}"
+fi
+echo
+
+echo "Notes:"
+echo "  • Linear reachability + reviewer availability are checked by the agent"
+echo "    (they are MCP/agent capabilities, not shell-visible)."
+echo "  • Laws in force: worktree isolation, git -C not cd, answer every bot,"
+echo "    no --admin on web, no --prebuilt web deploy, verify what merged."
+exit 0

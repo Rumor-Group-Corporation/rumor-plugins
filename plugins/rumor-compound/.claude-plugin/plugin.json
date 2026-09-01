@@ -1,0 +1,33 @@
+{
+  "name": "rumor-compound",
+  "version": "0.1.0",
+  "description": "Compound engineering for the Rumor stack. The full loop -- ideate, plan, work, review, ship, babysit, and compound the learning -- wired to Linear instead of GitHub issues, aware of every main Rumor repo, and enforcing Rumor's standing laws (worktree isolation, PR bot-review, web merge policy). Each run makes the next one easier.",
+  "author": {
+    "name": "Chris Mathew",
+    "url": "https://github.com/Rumor-Group-Corporation"
+  },
+  "repository": "https://github.com/Rumor-Group-Corporation/rumor-plugins",
+  "license": "MIT",
+  "keywords": [
+    "compound-engineering",
+    "linear",
+    "planning",
+    "code-review",
+    "workflow-automation",
+    "rumor",
+    "worktree",
+    "ship"
+  ],
+  "skills": [
+    "./skills/rumor-compound/",
+    "./skills/rce-ideate/",
+    "./skills/rce-plan/",
+    "./skills/rce-work/",
+    "./skills/rce-review/",
+    "./skills/rce-ship/",
+    "./skills/rce-babysit/",
+    "./skills/rce-compound/",
+    "./skills/rce-lfg/",
+    "./skills/rce-setup/"
+  ]
+}

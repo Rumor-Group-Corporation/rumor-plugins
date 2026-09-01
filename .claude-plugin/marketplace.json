@@ -10,6 +10,24 @@
   },
   "plugins": [
     {
+      "name": "rumor-compound",
+      "source": "./plugins/rumor-compound",
+      "description": "Compound engineering for the Rumor stack. The full loop -- ideate, plan, work, review, ship, babysit, and compound the learning -- wired to Linear instead of GitHub issues, aware of every main Rumor repo, and enforcing Rumor's standing laws (worktree isolation, PR bot-review, web merge policy). Each run makes the next one easier.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Chris Mathew",
+        "url": "https://github.com/Rumor-Group-Corporation"
+      },
+      "tags": [
+        "compound-engineering",
+        "linear",
+        "planning",
+        "code-review",
+        "workflow-automation",
+        "worktree"
+      ]
+    },
+    {
       "name": "rumor-ui",
       "source": "./plugins/rumor-ui",
       "description": "Figma -> code, the Rumor way. Turns a Figma frame into a standards-compliant, tested, verified UI screen in rumor-mobile-expo, with backend contract probing, an auto-enforcing standards hook, and a self-improving lessons ledger.",

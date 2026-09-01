@@ -1,0 +1,34 @@
+# Rumor Compound Engineering — repo config (optional)
+# Copy to .compound-engineering/config.yaml in the repo root and commit it.
+# Every key is optional; each has a working default. See rce-setup / config.md.
+
+# --- Artifact root ---
+# Where plans/, solutions/, ideation/ are written. Repo-relative dir, inside the
+# repo, not the root, not under .git/. An INVALID value STOPS the run (a typo must
+# not silently scatter artifacts) — it does not fall back to `docs`.
+# docs_root: docs
+
+# --- Linear ---
+# Default team key for issue creation when the branch carries no id (RUM / DEM /
+# PLAT / ...). Inferred from the branch or asked when unset.
+# linear_team: DEM
+
+# --- Verify ---
+# Override the verify command. Default is derived from package.json scripts
+# (typecheck -> lint -> test -> check) with the detected package manager. Set only
+# when the standard scripts do not capture "verified" for this repo.
+# verify_cmd: "bun run typecheck && bun run test"
+
+# --- Base branch ---
+# Base new worktrees fork from. Default is origin's default branch (main/master).
+# default_base: main
+
+# --- Reviewers ---
+# Force a reviewer roster for rce-review. Default is risk-driven. Comma list of:
+# opus-reviewer, thermos, rams, code-review, rumor-ui-standards.
+# reviewers: opus-reviewer,code-review
+
+# --- Merge policy ---
+# pr = open PR and stop at merge-ready (default, safest). NEVER implies --admin
+# (LAW 5 — no protection bypass on web repos without Chris's say-so).
+# merge_policy: pr
