@@ -12,8 +12,8 @@
     {
       "name": "rumor-harness",
       "source": {
-        "source": "github",
-        "repo": "Rumor-Group-Corporation/rumor-jev-router"
+        "source": "url",
+        "url": "https://github.com/Rumor-Group-Corporation/rumor-jev-router.git"
       },
       "description": "Rumor's shared Claude Code harness: Jev (TypeSafe) compaction that keeps long sessions small without a lossy summary, Jev-routed reads for large files, and numbers-only team metrics so the harness keeps improving. After install, run /rumor-harness:setup.",
       "author": {
