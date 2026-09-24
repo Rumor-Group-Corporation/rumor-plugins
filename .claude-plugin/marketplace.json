@@ -10,6 +10,26 @@
   },
   "plugins": [
     {
+      "name": "rumor-harness",
+      "source": {
+        "source": "github",
+        "repo": "Rumor-Group-Corporation/rumor-jev-router"
+      },
+      "description": "Rumor's shared Claude Code harness: Jev (TypeSafe) compaction that keeps long sessions small without a lossy summary, Jev-routed reads for large files, and numbers-only team metrics so the harness keeps improving. After install, run /rumor-harness:setup.",
+      "author": {
+        "name": "Rumor Engineering",
+        "url": "https://github.com/Rumor-Group-Corporation"
+      },
+      "tags": [
+        "compaction",
+        "context",
+        "tokens",
+        "jev",
+        "harness",
+        "metrics"
+      ]
+    },
+    {
       "name": "rumor-compound",
       "source": "./plugins/rumor-compound",
       "description": "Compound engineering for the Rumor stack. The full loop -- ideate, plan, work, review, ship, babysit, and compound the learning -- wired to Linear instead of GitHub issues, aware of every main Rumor repo, and enforcing Rumor's standing laws (worktree isolation, PR bot-review, web merge policy). Each run makes the next one easier.",
