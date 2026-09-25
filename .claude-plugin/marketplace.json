@@ -97,6 +97,23 @@
         "task-automation",
         "ai-loop"
       ]
+    },
+    {
+      "name": "rumor-db",
+      "source": "./plugins/rumor-db",
+      "description": "Read-only Rumor database access for agents: query prod or UAT Neon over Tailscale with one script, with guarded login, statement shape and transaction.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Chris Mathew",
+        "url": "https://github.com/Rumor-Group-Corporation"
+      },
+      "tags": [
+        "database",
+        "neon",
+        "postgres",
+        "tailscale",
+        "read-only"
+      ]
     }
   ]
 }

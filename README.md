@@ -17,6 +17,7 @@ A personal [Claude Code](https://code.claude.com/docs/en/plugins) plugin marketp
 | **rumor-harness** | **Everyone should install this.** Rumor's shared Claude Code harness: Jev (TypeSafe) compaction keeps long sessions small without a lossy summary, large-file reads go to exact line ranges, and numbers-only team metrics keep it improving. Install, then run `/rumor-harness:setup`. Source: [rumor-jev-router](https://github.com/Rumor-Group-Corporation/rumor-jev-router). |
 | **thermos** | Thermo-nuclear branch review — deep correctness/security audits and harsh code-quality rubrics, run by parallel subagents. Vendored from [cursor/plugins](https://github.com/cursor/plugins/tree/main/thermos) (MIT) and repackaged in Claude Code plugin format. |
 | **ralph-wiggum** | Autonomous agent loop — runs Claude Code repeatedly until all PRD items are done, fresh context each iteration, memory persisted via git/`progress.txt`/`prd.json`. Based on Geoffrey Huntley's Ralph pattern. |
+| **rumor-db** | Read-only Rumor database access for agents. Query prod or UAT Neon over Tailscale with one script (`doctor`, `status`, `tables`, `columns`, `query`, `event`). Setup: [plugins/rumor-db/README.md](plugins/rumor-db/README.md). |
 
 ### ralph-wiggum commands
 
