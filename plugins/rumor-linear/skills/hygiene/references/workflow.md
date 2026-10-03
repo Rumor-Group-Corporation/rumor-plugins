@@ -37,8 +37,9 @@ A ticket is as far along as its **least** advanced required PR.
    authoritative: Linear made them from the `[KEY-123]` title prefix, the branch
    name, or a human link.
 2. Drop PRs that are **CLOSED unmerged** if another PR on the ticket replaced
-   them (same repo, opened later). A closed PR with no replacement is a finding,
-   not a dropped PR.
+   them (opened later, in the same repo **or its successor**: web-2.0 →
+   grapevine, rumor-studio → grapevine). A closed PR with no replacement is a
+   finding, not a dropped PR.
 3. Drop PRs whose `surfaces` is `["none"]` (nothing deploys — docs, CI, tests).
 4. The rest are required. One open PR holds the whole ticket at `In Review`,
    even if a sibling PR is live in prod. (Backend live + web not merged = the
@@ -56,6 +57,15 @@ exactly how Backlog tickets got swept to In Production by the old bot.
 title starts with `[THIS-KEY` or the branch contains `this-key`). A pre-work
 ticket (rank 0) whose only link is a PR made for some other ticket stays put and
 is reported.
+
+## A human moved it backward — respect that
+
+If `stateHistory` shows the ticket moved to a **lower** rank *after* the PR
+that would now push it forward was opened (or merged), a person deliberately
+pulled it back: a QA kickback, a design rejection, "parking" it. Any forward
+move on that ticket becomes **ASK**, not MOVE, and the question quotes the
+demotion ("moved In Progress → Backlog on 09-26, 8 min after backend#5147
+opened — move it to In Review anyway?").
 
 ## Override labels — a human has taken control
 
