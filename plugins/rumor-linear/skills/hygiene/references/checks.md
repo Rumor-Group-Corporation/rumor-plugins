@@ -29,6 +29,7 @@ Thresholds are calendar days from `updatedAt` / the state's `startedAt` in
 | A11 | PR mentioned in description/comments, not attached | REMIND | "link the PR so status can follow it" |
 | A12 | `prod: unknown` because of a native mobile change, a lambda, or a repo with no oracle | REMIND (owner) | name exactly what to confirm |
 | A13 | Only PR is a merged **web-2.0** PR (frozen repo) | ASK | was it ported to grapevine? If not, it never shipped |
+| A16 | Ticket at `In UAT` or later with no PR because the work is an operation (a backfill, a data fix, a config change) | REMIND (assignee): "is the operation done? Close it with a comment saying when and where it ran". Never move it yourself |
 | A15 | Ticket at an In Production state with **no** attached PR | REMIND (assignee): "link the PR that shipped this, or reopen it". Look in the bodies of PRs you already fetched for the ticket key first (e.g. grapevine#336 naming web-next#4324) and suggest that link. Bulk moves to done are where these come from |
 | A14 | Ticket carries a stale delivery label (`Pushed to Production`, `Merge to Production`, `Ready for Production`) that disagrees with the status | REMIND | the label is retired; status is the source of truth |
 
@@ -37,8 +38,8 @@ Thresholds are calendar days from `updatedAt` / the state's `startedAt` in
 | # | Finding | Class |
 |---|---|---|
 | B1 | `In Progress` > 7 days with no linked PR and no update | REMIND (assignee): still on it? |
-| B2 | `In Review` > 3 days, PR open with no review / unresolved requested changes | REMIND (PR author + reviewers) |
-| B3 | `In Review` PR has failing required checks > 2 days | REMIND (PR author) |
+| B2 | `In Review` (now, or after this sweep's move) > 3 days, PR open with no review / unresolved requested changes | REMIND (PR author + reviewers) |
+| B3 | `In Review` (now, or after this sweep's move) PR has failing checks > 2 days | REMIND (PR author) |
 | B4 | `In UAT` > 7 days, all PRs `prod: no` | REMIND (assignee / release owner): waiting on a promote? Backend needs a `Deliver` promote, web a Vercel prod promote, mobile an OTA or store release |
 | B5 | `Approved` > 3 days, not in prod (Approved is state type `completed` — fetch it by name) | REMIND (release owner): QA passed — ship it |
 | B6 | `In UAT` > 5 days, not `Approved`, and it's user-facing (not `eng-technical`) | REMIND (QA / ticket creator): needs QA on UAT |
@@ -66,7 +67,7 @@ Thresholds are calendar days from `updatedAt` / the state's `startedAt` in
 | D2 | Parent done, a child still open | ASK: cancel/move the child, or reopen the parent |
 | D2b | Parent at rank 0 while any child is at rank ≥ 10 (children are being built, parent still says Backlog/Todo) | ASK: move parent to `In Progress` |
 | D3 | Ticket `blockedBy` an issue that is done | REMIND: unblocked |
-| D4 | Two open tickets share an identical title or the same PR as their only link | ASK: mark one `Duplicate` |
+| D4 | Two open tickets with an identical (normalised) title | ASK: mark one `Duplicate`. Sharing a PR is **not** duplication — one parity PR often ships several distinct tickets |
 | D5 | One PR attached to > 4 tickets | REMIND: probably a grab-bag PR; tickets may be reporting each other's progress |
 
 ## E. Untracked work (from `untracked-prs.sh`)
@@ -75,6 +76,12 @@ Thresholds are calendar days from `updatedAt` / the state's `startedAt` in
 |---|---|---|
 | E1 | Non-routine PR, no ticket key in title/branch, url not a Linear attachment | REMIND (PR author): create or link a ticket, title `[KEY-123] …` |
 | E2 | Routine PR (deps, CI, release, bot) with no ticket | summarised in one line, never chased |
+
+## One reminder per ticket per person
+
+C8 (stale high priority) only appears when no other row already covers that
+ticket — otherwise fold "(Urgent)" into the existing row. The point is a list a
+person can clear, not a wall of repeats.
 
 ## What is never a finding
 

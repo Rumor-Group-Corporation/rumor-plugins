@@ -36,10 +36,19 @@ A ticket is as far along as its **least** advanced required PR.
    url is `github.com/Rumor-Group-Corporation/<repo>/pull/<n>`). These are
    authoritative: Linear made them from the `[KEY-123]` title prefix, the branch
    name, or a human link.
-2. Drop PRs that are **CLOSED unmerged** if another PR on the ticket replaced
-   them (opened later, in the same repo **or its successor**: web-2.0 →
-   grapevine, rumor-studio → grapevine). A closed PR with no replacement is a
-   finding, not a dropped PR.
+2. Drop PRs that are **CLOSED unmerged** if another merged or open PR on the
+   ticket does the same job (same repo **or its successor**: web-2.0 →
+   grapevine, rumor-studio → grapevine; order of opening doesn't matter).
+   Closed reverts that were never needed drop silently. Any other closed PR
+   with no replacement is a finding, not a dropped PR.
+2b. Drop **OPEN PRs in web-2.0** (frozen — they will never merge). Each one is
+   an ASK: "close web-2.0#N? (port: grapevine#M / none found)". Without this
+   one stale frozen PR pins a ticket at In Review while its grapevine port is
+   live in prod.
+2c. A PR whose title carries a **different** ticket key (`[RUM-10362]` attached
+   to RUM-10342) still counts, but add a REMIND: "attached PR is titled for
+   another ticket — intended?". If it's the only thing holding the ticket
+   back, say so.
 3. Drop PRs whose `surfaces` is `["none"]` (nothing deploys — docs, CI, tests).
 4. The rest are required. One open PR holds the whole ticket at `In Review`,
    even if a sibling PR is live in prod. (Backend live + web not merged = the
@@ -92,6 +101,11 @@ a backend flag table for some server features. A ticket is flag-gated when ANY o
   Prod 0%");
 - its title says "behind a flag" / "flagged" / "dark launch".
 
+**Flags travel with the PR.** If any ticket attached to a PR is flag-gated,
+treat every ticket whose deciding PR is that one as flag-gated too, and resolve
+them together (four Ticket Sales tickets on one mobile PR, only two of which
+say "flag" — they share one gate).
+
 For a flag-gated ticket whose code is live in prod:
 
 1. Find the key. If you can't, the target is undetermined → report, don't move.
@@ -137,5 +151,8 @@ that status, maybe for a reason the PRs don't show.
   history). The script reads web-2.0 merges against grapevine's web deploys, so
   pre-freeze work shows as live correctly. Only a web-2.0 merge that is *not*
   in grapevine history comes back `no` with a "may never ship" caveat.
-- **Any repo without an oracle** (data-platform, infra, dispatch, …) returns
-  `unknown`. Merged = `In UAT` at most; past that needs the owner.
+- **Any repo without an oracle** (ask-rumor, enrichment, data-platform, infra,
+  dispatch, …) returns `uat: yes` once merged to main (the same rule Linear's
+  own automation uses) and `prod: unknown`. Past In UAT needs the owner.
+- **PRs merged into a branch other than main** (`dev`, `uat`, `development`)
+  return `unknown` — that branch may never reach main.

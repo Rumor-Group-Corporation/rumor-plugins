@@ -127,6 +127,8 @@ check_pr() {
 
   if [[ "$state" != "MERGED" ]]; then
     evidence="PR is $state"
+    [[ "$repo" == web-2.0 && "$state" == OPEN ]] && \
+      caveats+=("open PR in FROZEN web-2.0: it will never merge — not a required PR; ask whether to close it (and whether a grapevine port exists)")
   elif [[ "$base" != "main" && "$base" != "master" ]]; then
     uat=unknown; prod=unknown
     evidence="merged into '$base', not main — not deployed by the main pipeline"
@@ -219,15 +221,17 @@ check_pr() {
           [[ "$prod" == yes ]] && uat=yes
           evidence="web-2.0 commit carried into grapevine history; read against grapevine web deploys"
         else
-          uat="$(contains "$repo" "$merge_sha" "$(deploy_sha web-2.0 uat)")"
-          prod="$(contains "$repo" "$merge_sha" "$(deploy_sha web-2.0 'Production – rumor-web')")"
+          # web-2.0's own deployments describe the OLD therumor.com; never report them as live
+          uat=unknown; prod=no
           evidence="web-2.0 is FROZEN (grapevine is the web source since 2026-09-24) and this commit is not in grapevine's deployed history"
           caveats+=("web-2.0 frozen and not carried into grapevine: it may never ship unless ported")
         fi
         ;;
       *)
-        surfaces='["unknown"]'; uat=unknown; prod=unknown
-        evidence="no deploy oracle for $repo — merged to main only"
+        # No deploy oracle. Merged to main counts for In UAT (the same rule Linear's
+        # own GitHub automation applies on merge); never for production.
+        surfaces='["unknown"]'; uat=yes; prod=unknown
+        evidence="no deploy oracle for $repo — merged to main counts as In UAT only"
         caveats+=("no deploy signal for this repo: confirm with the owner before moving past In UAT")
         ;;
     esac
