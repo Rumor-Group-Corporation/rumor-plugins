@@ -154,5 +154,10 @@ that status, maybe for a reason the PRs don't show.
 - **Any repo without an oracle** (ask-rumor, enrichment, data-platform, infra,
   dispatch, …) returns `uat: yes` once merged to main (the same rule Linear's
   own automation uses) and `prod: unknown`. Past In UAT needs the owner.
+- **rumor-infra** is terraform: merged ≠ applied. Always `unknown`; ask the
+  owner whether the apply ran in each env.
+- **Test-only changes** (e2e fixtures, `*.spec.ts`, playwright, CI) in grapevine
+  or backend return `surfaces: ["none"]` — they ship nothing, so they never
+  decide a ticket's status.
 - **PRs merged into a branch other than main** (`dev`, `uat`, `development`)
   return `unknown` — that branch may never reach main.

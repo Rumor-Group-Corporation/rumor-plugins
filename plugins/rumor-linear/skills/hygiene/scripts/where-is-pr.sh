@@ -162,6 +162,10 @@ check_pr() {
         grep -q '^apps/studio/' <<<"$files" && studio=1
         grep -q '^apps/host-agent' <<<"$files" && agent=1
         grep -qE '^(packages/|package\.json|pnpm-lock|turbo\.json)' <<<"$files" && shared=1
+        # e2e / test-only changes inside an app don't ship anything
+        if ! grep -qvE '(/e2e/|\.spec\.tsx?$|\.test\.tsx?$|/__tests__/|playwright|^\.github/|\.md$|^docs/)' <<<"$files"; then
+          web=0; studio=0; agent=0; shared=0
+        fi
         [[ $shared == 1 && $web == 0 && $studio == 0 ]] && { web=1; studio=1; }
         local -a sf=() us=() ps=()
         if [[ $web == 1 ]]; then
@@ -226,6 +230,12 @@ check_pr() {
           evidence="web-2.0 is FROZEN (grapevine is the web source since 2026-09-24) and this commit is not in grapevine's deployed history"
           caveats+=("web-2.0 frozen and not carried into grapevine: it may never ship unless ported")
         fi
+        ;;
+      rumor-infra)
+        # Terraform: merging does not apply it. Someone runs the apply per env.
+        surfaces='["infra"]'; uat=unknown; prod=unknown
+        evidence="terraform: merged ≠ applied"
+        caveats+=("confirm 'terraform apply' ran in UAT and prod for this change")
         ;;
       *)
         # No deploy oracle. Merged to main counts for In UAT (the same rule Linear's

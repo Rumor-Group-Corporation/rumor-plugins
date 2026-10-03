@@ -50,7 +50,17 @@ procedure:
    status purposes must come from **Rumor-Prod (471884)** — switch project before
    reading a flag, and say which project every reading came from. No PostHog →
    flag-gated tickets get REMINDs instead of moves.
-6. **GitHub login** for untracked PRs: `gh api user --jq .login` (it is not the
+6. **Bounce check.** Linear's GitHub integration on Rumor's teams has been seen
+   moving a ticket In Review → **In Progress** ~5 s after the PR opens (same
+   second `linear-code[bot]` comments). While that rule is live, any In Review
+   move this sweep makes can be undone on the next PR event. Detect it: in the
+   enriched tickets, count `stateHistory` entries where In Review lasted < 60 s
+   and was followed by In Progress. If any, put this at the **top** of the
+   report: "Linear is bouncing PRs out of In Review (N tickets, e.g. RUM-10525).
+   Fix in Linear → Settings → Team → Workflow → GitHub/Git automations (a team
+   admin's call). Until then In Review moves won't stick." Still propose the A5
+   moves, but mark them "may bounce".
+7. **GitHub login** for untracked PRs: `gh api user --jq .login` (it is not the
    Linear name).
 
 Scripts live next to this file. Resolve their absolute path from this skill's

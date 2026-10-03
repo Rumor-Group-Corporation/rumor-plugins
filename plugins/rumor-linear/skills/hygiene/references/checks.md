@@ -25,6 +25,7 @@ Thresholds are calendar days from `updatedAt` / the state's `startedAt` in
 | A7 | Ticket at `In Production*` but some required PR `prod: no` | ASK | back to `In UAT` (someone moved it early, or a revert) |
 | A8 | Ticket at `In UAT`/`Approved` but some required PR is still OPEN | ASK | back to `In Review` — or confirm the open PR is a follow-up that should get its own ticket |
 | A9 | Ticket at `In Review`, all its PRs CLOSED unmerged, none open | ASK | back to `In Progress`, or `Canceled` if the work was dropped |
+| A9b | Started ticket below In Review whose attached PRs are **all** CLOSED unmerged with nothing open or merged | REMIND (assignee): "PRs were closed — link the replacement or cancel". Check sibling tickets' PRs for the likely replacement and name it |
 | A10 | Started ticket (rank 10–50) with no PR attachment, and a PR in `untracked-prs.sh`-style output (or one you already fetched) carries `[THIS-KEY` in its title | MOVE | attach the PR link (additive), then re-evaluate. **Don't** full-text search GitHub for keys — `gh search prs SUP-729` matches PR #729 and bodies, and the search API rate-limits at 30/min. Linear auto-attaches any PR whose title or branch has the key, so a missing attachment is rare. |
 | A11 | PR mentioned in description/comments, not attached | REMIND | "link the PR so status can follow it" |
 | A12 | `prod: unknown` because of a native mobile change, a lambda, or a repo with no oracle | REMIND (owner) | name exactly what to confirm |
