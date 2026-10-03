@@ -23,7 +23,8 @@ Thresholds are calendar days from `updatedAt` / the state's `startedAt` in
 | A5 | Ticket at rank < 20, at least one required PR OPEN (not draft) | MOVE | `In Review` |
 | A6 | Ticket at rank 0, a required PR is OPEN as draft | MOVE | `In Progress` |
 | A7 | Ticket at `In Production*` but some required PR `prod: no` | ASK | back to `In UAT` (someone moved it early, or a revert) |
-| A8 | Ticket at `In UAT`/`Approved` but some required PR is still OPEN | ASK | back to `In Review` — or confirm the open PR is a follow-up that should get its own ticket |
+| A8 | Ticket at `In UAT`/`Approved`/`In Production*` but some required PR is still OPEN | ASK | back to `In Review` — or (usually right when the ticket is already in prod and the open PRs are newer) move those PRs to a new follow-up ticket |
+| A17 | Every PR on the ticket is merged and CI/docs/tooling-only (`surfaces: none`), ticket below rank 60 | MOVE | `In Production` — tooling is live on merge. Reason must say "tooling-only" |
 | A9 | Ticket at `In Review`, all its PRs CLOSED unmerged, none open | ASK | back to `In Progress`, or `Canceled` if the work was dropped |
 | A9b | Started ticket below In Review whose attached PRs are **all** CLOSED unmerged with nothing open or merged | REMIND (assignee): "PRs were closed — link the replacement or cancel". Check sibling tickets' PRs for the likely replacement and name it |
 | A10 | Started ticket (rank 10–50) with no PR attachment, and a PR in `untracked-prs.sh`-style output (or one you already fetched) carries `[THIS-KEY` in its title | MOVE | attach the PR link (additive), then re-evaluate. **Don't** full-text search GitHub for keys — `gh search prs SUP-729` matches PR #729 and bodies, and the search API rate-limits at 30/min. Linear auto-attaches any PR whose title or branch has the key, so a missing attachment is rare. |
@@ -32,7 +33,8 @@ Thresholds are calendar days from `updatedAt` / the state's `startedAt` in
 | A13 | Only PR is a merged **web-2.0** PR (frozen repo) | ASK | was it ported to grapevine? If not, it never shipped |
 | A16 | Ticket at `In UAT` or later with no PR because the work is an operation (a backfill, a data fix, a config change) | REMIND (assignee): "is the operation done? Close it with a comment saying when and where it ran". Never move it yourself |
 | A15 | Ticket at an In Production state with **no** attached PR | REMIND (assignee): "link the PR that shipped this, or reopen it". Look in the bodies of PRs you already fetched for the ticket key first (e.g. grapevine#336 naming web-next#4324) and suggest that link. Bulk moves to done are where these come from |
-| A14 | Ticket carries a stale delivery label (`Pushed to Production`, `Merge to Production`, `Ready for Production`) that disagrees with the status | REMIND | the label is retired; status is the source of truth |
+| A14 | Ticket carries a retired delivery label (`Pushed to Production`, `Merge to Production`, `Ready for Production`) | REMIND | the label is retired; status is the source of truth — remove it |
+| A18 | Ticket at a done status still carries a blocking override label (`Back to In Progress`, `Do Not Auto-Advance`, …) | REMIND (assignee) | stale label (remove) or the ticket should be reopened |
 
 ## B. Stalled work
 

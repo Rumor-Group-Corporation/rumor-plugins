@@ -49,7 +49,10 @@ A ticket is as far along as its **least** advanced required PR.
    to RUM-10342) still counts, but add a REMIND: "attached PR is titled for
    another ticket — intended?". If it's the only thing holding the ticket
    back, say so.
-3. Drop PRs whose `surfaces` is `["none"]` (nothing deploys — docs, CI, tests).
+3. Drop PRs whose `surfaces` is `["none"]` (nothing deploys — docs, CI, tests,
+   dev tooling). If **every** merged PR on the ticket is `none` and none are
+   open, the ticket is tooling work that is live the moment it merges (CI runs
+   from main): target `In Production` (check A17).
 4. The rest are required. One open PR holds the whole ticket at `In Review`,
    even if a sibling PR is live in prod. (Backend live + web not merged = the
    user can't see it yet.)
@@ -119,12 +122,18 @@ For a flag-gated ticket whose code is live in prod:
 
 A ticket with no flag evidence goes to plain `In Production`.
 
+**A flag means a real flag key.** "flag" in a PR body that refers to a CLI
+option (`--flag`), a DB column (`dont_recommend` flag) or a pause switch quoted
+in a test scenario is not gating. Count it only when you can name the PostHog /
+backend flag key and the PR or ticket says the feature sits behind it.
+
 **Staff access gates are not feature flags.** The new admin sits behind
 staff-only gates (`admin-users-table`, `admin-events`, the `/admin/staff/*`
 guards). Those decide *who may use an internal tool*, not whether a feature is
 dark-launched — a staff tool behind them that's live in prod is plain
-`In Production`. Only flags that hide a feature from the users it's built for
-(hosts, guests, members) pick ON vs OFF.
+`In Production`. Only flags that hide a feature from the users it's built for pick ON vs OFF.
+For a tool built **for staff** (the admin, staff mobile admin, Member Review),
+staff *are* those users: flag on for staff = `Feature ON`.
 
 `In Production — Feature OFF` → plain `In Production` when the PRs say
 explicitly there is no flag ("not PostHog-gated") is an **ASK** — someone chose

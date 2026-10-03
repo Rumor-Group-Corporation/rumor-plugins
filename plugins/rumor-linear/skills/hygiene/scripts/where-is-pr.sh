@@ -79,6 +79,10 @@ mobile_ota_sha() {
   cat "$key"
 }
 
+# Files that never ship to users: CI, docs, agent notes, dev tooling, tests.
+NONSHIP_RE='(^\.github/|^docs/|\.md$|^AGENTS|^CLAUDE|^tools/|^\.husky/|/e2e/|^e2e/|\.spec\.tsx?$|\.test\.tsx?$|/__tests__/|^test/|playwright|^\.maestro/|^maestro/)'
+nonship_only() { [[ -n "$1" ]] && ! grep -qvE "$NONSHIP_RE" <<<"$1"; }
+
 # Is commit $2 contained in deploy head $3? Prints yes/no/unknown.
 contains() { # repo merge_sha deploy_sha
   [[ -z "$3" ]] && { echo unknown; return; }
@@ -129,13 +133,17 @@ check_pr() {
     evidence="PR is $state"
     [[ "$repo" == web-2.0 && "$state" == OPEN ]] && \
       caveats+=("open PR in FROZEN web-2.0: it will never merge — not a required PR; ask whether to close it (and whether a grapevine port exists)")
-  elif [[ "$base" != "main" && "$base" != "master" ]]; then
+  elif [[ "$base" != "main" && "$base" != "master" ]] && \
+       [[ ! "$(gh api "repos/$ORG/$repo/compare/$merge_sha...main" --jq .status 2>/dev/null)" =~ ^(ahead|identical)$ ]]; then
     uat=unknown; prod=unknown
-    evidence="merged into '$base', not main — not deployed by the main pipeline"
-    caveats+=("stacked/feature-branch PR: check the PR it was stacked on")
+    evidence="merged into '$base', and that commit is not on main"
+    caveats+=("merged into a side branch ('$base') that never reached main: check the PR it was stacked on, or whether '$base' was merged")
   else
+    [[ "$base" != "main" && "$base" != "master" ]] && \
+      caveats+=("merged into '$base', which later reached main — read against main's deploys")
     local files
     files="$(gh api "repos/$ORG/$repo/pulls/$num/files?per_page=100" --paginate --jq '.[].filename' 2>/dev/null)"
+    local nonship=0; nonship_only "$files" && nonship=1
     case "$repo" in
       rumor-backend-services)
         surfaces='["backend"]'
@@ -144,7 +152,7 @@ check_pr() {
         uat="$(contains "$repo" "$merge_sha" "$u")"
         prod="$(contains "$repo" "$merge_sha" "$p")"
         evidence="UAT=delivered-main@${u:0:7}; prod=$(cat "$CACHE/be_prod_tag" 2>/dev/null)@${p:0:7}"
-        if ! grep -qvE '(^docs/|\.md$|\.test\.ts$|\.spec\.ts$|^\.github/|^test/|/__tests__/)' <<<"$files"; then
+        if [[ $nonship == 1 ]]; then
           surfaces='["none"]'; uat=n/a; prod=n/a
           caveats+=("docs/CI/test-only change: Deliver skips it, nothing deploys — not a required PR")
         fi
@@ -163,7 +171,7 @@ check_pr() {
         grep -q '^apps/host-agent' <<<"$files" && agent=1
         grep -qE '^(packages/|package\.json|pnpm-lock|turbo\.json)' <<<"$files" && shared=1
         # e2e / test-only changes inside an app don't ship anything
-        if ! grep -qvE '(/e2e/|\.spec\.tsx?$|\.test\.tsx?$|/__tests__/|playwright|^\.github/|\.md$|^docs/)' <<<"$files"; then
+        if [[ $nonship == 1 ]]; then
           web=0; studio=0; agent=0; shared=0
         fi
         [[ $shared == 1 && $web == 0 && $studio == 0 ]] && { web=1; studio=1; }
@@ -196,7 +204,10 @@ check_pr() {
       rumor-mobile-expo)
         surfaces='["mobile"]'
         uat=yes   # staging OTA publishes on every push to main
-        if grep -qE '^(ios/|android/|plugins/|patches/|app\.config\.(ts|js)$|app\.json$|eas\.json$|package\.json$|package-lock\.json$|yarn\.lock$)' <<<"$files"; then
+        if [[ $nonship == 1 ]]; then
+          surfaces='["none"]'; uat=n/a; prod=n/a
+          evidence="CI/docs/test-only: ships nothing to devices"
+        elif grep -qE '^(ios/|android/|plugins/|patches/|app\.config\.(ts|js)$|app\.json$|eas\.json$|package\.json$|package-lock\.json$|yarn\.lock$)' <<<"$files"; then
           prod=unknown
           evidence="NATIVE change: only live when the App Store build containing it is READY_FOR_SALE"
           caveats+=("native lane: confirm the App Store version (App Store Connect) before moving to In Production")
@@ -208,6 +219,7 @@ check_pr() {
         ;;
       rumor-web-next)
         surfaces='["admin-legacy"]'
+        [[ $nonship == 1 ]] && surfaces='["none"]'
         uat="$(contains "$repo" "$merge_sha" "$(deploy_sha rumor-web-next uat)")"
         prod="$(contains "$repo" "$merge_sha" "$(deploy_sha rumor-web-next Production)")"
         evidence="GitHub deployments uat / Production"
@@ -245,6 +257,7 @@ check_pr() {
         caveats+=("no deploy signal for this repo: confirm with the owner before moving past In UAT")
         ;;
     esac
+    if [[ "$surfaces" == '["none"]' ]]; then uat=n/a; prod=n/a; evidence="CI/docs/tooling/test-only — ships nothing"; fi
   fi
 
   jq -nc --arg pr "$repo#$num" --arg url "$url" --arg state "$state" --argjson meta "$pr" \
