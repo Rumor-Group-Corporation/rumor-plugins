@@ -1,0 +1,13 @@
+{
+  "name": "rumor-linear",
+  "version": "0.1.0",
+  "description": "Keeps Rumor's Linear board honest. /rumor-linear:hygiene sweeps tickets, moves each one to the status its code has actually reached (merged, on UAT, in prod, behind a flag) from GitHub and deploy evidence, asks before anything backward, and hands each person a short list of reminders.",
+  "author": {
+    "name": "Rumor Engineering",
+    "url": "https://github.com/Rumor-Group-Corporation"
+  },
+  "repository": "https://github.com/Rumor-Group-Corporation/rumor-plugins",
+  "license": "MIT",
+  "keywords": ["linear", "hygiene", "status", "triage", "reminders"],
+  "skills": ["./skills/hygiene/"]
+}

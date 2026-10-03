@@ -114,6 +114,22 @@
         "tailscale",
         "read-only"
       ]
+    },
+    {
+      "name": "rumor-linear",
+      "source": "./plugins/rumor-linear",
+      "description": "Linear hygiene for Rumor: sweep the board, move every ticket to the status its code has actually reached (merged, UAT, prod, flag on/off) from GitHub and deploy evidence, ask before anything backward, and produce per-person reminders.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Rumor Engineering",
+        "url": "https://github.com/Rumor-Group-Corporation"
+      },
+      "tags": [
+        "linear",
+        "hygiene",
+        "status",
+        "reminders"
+      ]
     }
   ]
 }
