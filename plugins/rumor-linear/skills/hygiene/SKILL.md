@@ -84,8 +84,11 @@ updatedAt). Say the count before going further: "142 tickets in scope: 61 starte
 
 ## Step 2 — Enrich each ticket
 
-For each candidate, `get_issue <id>` with `includeRelations: true` when the
-ticket has a parent, children or is in scope for D-checks. Keep:
+For each candidate, `get_issue <id>`. `includeRelations: true` returns
+blocks / related / duplicates but **not** parent or children, so for D-checks
+build the parent map from the step-1 `parentId` field, and call
+`list_issues {parentId}` only for tickets that some other candidate names as
+its parent (or whose title says "parent"). Keep:
 
 - `attachments` → the GitHub PR urls (`github.com/Rumor-Group-Corporation/*/pull/*`)
 - `stateHistory` → when it entered its current status (for stale thresholds)

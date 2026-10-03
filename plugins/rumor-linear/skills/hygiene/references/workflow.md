@@ -105,6 +105,17 @@ For a flag-gated ticket whose code is live in prod:
 
 A ticket with no flag evidence goes to plain `In Production`.
 
+**Staff access gates are not feature flags.** The new admin sits behind
+staff-only gates (`admin-users-table`, `admin-events`, the `/admin/staff/*`
+guards). Those decide *who may use an internal tool*, not whether a feature is
+dark-launched — a staff tool behind them that's live in prod is plain
+`In Production`. Only flags that hide a feature from the users it's built for
+(hosts, guests, members) pick ON vs OFF.
+
+`In Production — Feature OFF` → plain `In Production` when the PRs say
+explicitly there is no flag ("not PostHog-gated") is an **ASK** — someone chose
+that status, maybe for a reason the PRs don't show.
+
 ## Deploy caveats the script surfaces (read them, they change the answer)
 
 - **Backend docs/CI/test-only merges never deploy.** `Deliver` skips them; the
@@ -122,8 +133,9 @@ A ticket with no flag evidence goes to plain `In Production`.
 - **grapevine web prod** is promoted by a CLI redeploy and GitHub can miss
   recording one. `prod: no` on a change that looks visibly live → say so and let
   a human confirm; don't move.
-- **web-2.0 is frozen** (grapevine replaced it on 2026-09-24). A ticket whose
-  only PR is a merged web-2.0 PR may never ship — check whether the work was
-  ported to grapevine before calling it done.
+- **web-2.0 is frozen** (grapevine replaced it on 2026-09-24, importing its
+  history). The script reads web-2.0 merges against grapevine's web deploys, so
+  pre-freeze work shows as live correctly. Only a web-2.0 merge that is *not*
+  in grapevine history comes back `no` with a "may never ship" caveat.
 - **Any repo without an oracle** (data-platform, infra, dispatch, …) returns
   `unknown`. Merged = `In UAT` at most; past that needs the owner.

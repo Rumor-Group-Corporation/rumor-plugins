@@ -207,11 +207,23 @@ check_pr() {
         evidence="GitHub deployments uat / Production"
         ;;
       web-2.0)
-        surfaces='["web-2.0"]'
-        uat="$(contains "$repo" "$merge_sha" "$(deploy_sha web-2.0 uat)")"
-        prod="$(contains "$repo" "$merge_sha" "$(deploy_sha web-2.0 'Production – rumor-web')")"
-        evidence="web-2.0 is FROZEN (grapevine is the web source since 2026-09-24); readings may be stale"
-        caveats+=("web-2.0 frozen: a merged web-2.0 PR may never ship — check whether it was ported to grapevine")
+        # grapevine imported web-2.0's history, so a web-2.0 merge commit that is an
+        # ancestor of grapevine's web deploy IS live on therumor.com. Check that
+        # first; fall back to web-2.0's own (frozen) deployments.
+        surfaces='["web"]'
+        local gu gp
+        gu="$(contains grapevine "$merge_sha" "$(deploy_sha grapevine 'uat – rumor-web')")"
+        gp="$(contains grapevine "$merge_sha" "$(deploy_sha grapevine 'Production – rumor-web')")"
+        if [[ "$gp" == yes || "$gu" == yes ]]; then
+          uat="$gu"; prod="$gp"
+          [[ "$prod" == yes ]] && uat=yes
+          evidence="web-2.0 commit carried into grapevine history; read against grapevine web deploys"
+        else
+          uat="$(contains "$repo" "$merge_sha" "$(deploy_sha web-2.0 uat)")"
+          prod="$(contains "$repo" "$merge_sha" "$(deploy_sha web-2.0 'Production – rumor-web')")"
+          evidence="web-2.0 is FROZEN (grapevine is the web source since 2026-09-24) and this commit is not in grapevine's deployed history"
+          caveats+=("web-2.0 frozen and not carried into grapevine: it may never ship unless ported")
+        fi
         ;;
       *)
         surfaces='["unknown"]'; uat=unknown; prod=unknown

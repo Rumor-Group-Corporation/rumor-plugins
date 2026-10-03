@@ -29,6 +29,7 @@ Thresholds are calendar days from `updatedAt` / the state's `startedAt` in
 | A11 | PR mentioned in description/comments, not attached | REMIND | "link the PR so status can follow it" |
 | A12 | `prod: unknown` because of a native mobile change, a lambda, or a repo with no oracle | REMIND (owner) | name exactly what to confirm |
 | A13 | Only PR is a merged **web-2.0** PR (frozen repo) | ASK | was it ported to grapevine? If not, it never shipped |
+| A15 | Ticket at an In Production state with **no** attached PR | REMIND (assignee): "link the PR that shipped this, or reopen it". Look in the bodies of PRs you already fetched for the ticket key first (e.g. grapevine#336 naming web-next#4324) and suggest that link. Bulk moves to done are where these come from |
 | A14 | Ticket carries a stale delivery label (`Pushed to Production`, `Merge to Production`, `Ready for Production`) that disagrees with the status | REMIND | the label is retired; status is the source of truth |
 
 ## B. Stalled work
@@ -51,7 +52,7 @@ Thresholds are calendar days from `updatedAt` / the state's `startedAt` in
 | C2 | Ticket assignee ≠ PR author on every required PR | REMIND — informational, often fine (pairing, handoff) |
 | C3 | Assignee is a deactivated/removed Linear user (`list_users` → inactive) | ASK: reassign |
 | C4 | Started ticket not in the team's current cycle while the team uses cycles | MOVE (additive): add to current cycle |
-| C5 | Completed ticket still in a future cycle | REMIND |
+| C5 | Completed ticket still in a future cycle (needs `list_cycles` per team to know which cycles are future) | REMIND |
 | C6 | Ticket with no project while its siblings / parent / PR-mates share one | REMIND (suggest the project) |
 | C7 | Due date in the past and not done | REMIND (assignee) |
 | C8 | **Started** ticket with priority Urgent/High and not updated in 3 days (pre-work tickets are covered by B7 — don't double-nag) | REMIND (assignee) |
