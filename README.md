@@ -18,6 +18,7 @@ A personal [Claude Code](https://code.claude.com/docs/en/plugins) plugin marketp
 | **thermos** | Thermo-nuclear branch review — deep correctness/security audits and harsh code-quality rubrics, run by parallel subagents. Vendored from [cursor/plugins](https://github.com/cursor/plugins/tree/main/thermos) (MIT) and repackaged in Claude Code plugin format. |
 | **ralph-wiggum** | Autonomous agent loop — runs Claude Code repeatedly until all PRD items are done, fresh context each iteration, memory persisted via git/`progress.txt`/`prd.json`. Based on Geoffrey Huntley's Ralph pattern. |
 | **rumor-db** | Read-only Rumor database access for agents. Query prod or UAT Neon over Tailscale with one script (`doctor`, `status`, `tables`, `columns`, `query`, `event`). Setup: [plugins/rumor-db/README.md](plugins/rumor-db/README.md). |
+| **rumor-linear** | Linear hygiene. `/rumor-linear:hygiene` sweeps the board and moves every ticket to the status its code has actually reached — merged, on UAT, in prod, flag on/off — from GitHub and deploy evidence. Asks before anything backward, and gives each person a short reminder list (stale work, missing PR links, waiting on QA or a promote, untracked PRs). Details: [plugins/rumor-linear/README.md](plugins/rumor-linear/README.md). |
 
 ### ralph-wiggum commands
 
