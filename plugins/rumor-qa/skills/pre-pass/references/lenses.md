@@ -102,8 +102,9 @@ return (RUM-13468 "swiped back and venues were gone", RUM-13280 nav bar gone).
 
 ## 8. Is the fix really on this build?
 
-Before calling a fix verified or a bug real: check the backend `delivered-main`
-tag includes the commit, the web UAT deployment includes it, and the Staging app
+Before calling a fix verified or a bug real: check the latest successful
+"Deliver" workflow run on rumor-backend-services includes the commit (the
+`delivered-main` tag is stale), the web UAT deployment includes it, and the Staging app
 is on the OTA update that has it. A fresh TestFlight install gets the OTA only
 on its SECOND launch (RUM-13104). Kill and relaunch the app twice. Cached
 screens can stay stale for 10–20 minutes (RUM-13331, RUM-13527).

@@ -4,9 +4,9 @@
 
 | Env | What you may do | How |
 |---|---|---|
-| UAT web | Log in as your QA accounts, create and change `QA-pre-pass` events and their guests, buy with Stripe test mode | `https://uathost.therumor.com` (also `betahost`), API `https://uatapi.therumor.com` |
-| UAT admin | Only with a staff session the person running you signs into themselves (see below) | `https://uathost.therumor.com/admin` |
-| Rumor Staging app | Log in as your QA accounts on the iOS simulator | dev client with `APP_VARIANT=staging` |
+| UAT web | Log in as your QA accounts, create and change `QA-pre-pass` events and their guests, buy with Stripe test mode | `https://betahost.therumor.com`, API `https://uatapi.therumor.com` |
+| UAT admin | Only with a staff session the person running you signs into themselves (see below) | There is no separate UAT admin site: the runner signs in to `https://betahost.therumor.com` with their `@therumor.com` email and opens admin from there |
+| Rumor Staging app | Log in as your QA accounts on the iOS simulator | the installed Rumor Staging build (points at UAT); a dev client with `APP_VARIANT=staging` only if you need a newer bundle |
 | Prod | Read-only SQL. Nothing else | `rumor-db` plugin (`"$DB" query ...`) |
 | Local | Anything; mock harness for admin screens | `grapevine/apps/web/e2e/helpers/admin-local-harness.ts` |
 
@@ -43,9 +43,10 @@ hand the browser the cookies):
    `roles`, `company-details`, `current-user-role=host`, ...) in a Playwright
    context for `uathost.therumor.com`, then open the portal.
 
-Working code: `grapevine/apps/web/e2e/flows/qa-host.ts` (`loginQaHost`) and
-`host-web.ts` (`openHostContext`). Prefer running a small Node/Playwright
-script that imports these helpers, over hand-driving the login.
+Working code in this skill: `scripts/uat.mjs` (`login(label, phone,
+{roleHint:'host'})`) then `scripts/portal-shot.mjs <label> <path> <out.png>`.
+The grapevine e2e helpers do the same (`e2e/flows/qa-host.ts` `loginQaHost`,
+`host-web.ts` `openHostContext`).
 
 **Guest / member on web**: the `/p/<code>` RSVP flow takes a test phone and
 its 4-digit guest code in the browser (helpers in `e2e/flows/guest-web.ts`,
@@ -53,7 +54,9 @@ its 4-digit guest code in the browser (helpers in `e2e/flows/guest-web.ts`,
 re-using one number on two accounts merges them.
 
 **Member/guest in the app**: Rumor Staging on the simulator, phone login with a
-test number, code = last four. Driving the simulator: follow
+test number, code = last four. The API equivalent is `login(label, phone,
+{client:'mobile'})`. Open an event with `therumorapp://event/<eventId>`.
+Driving the simulator: follow
 `rumor-ui:rumor-ui-verify-loop` (deep links, taps, screenshots). TestFlight
 builds do not install on a simulator; build a dev client:
 `cd rumor-mobile-expo && APP_VARIANT=staging npx expo run:ios`. First build
@@ -66,13 +69,14 @@ Keep the registry in `qa-accounts.md` next to this file (phone numbers of UAT
 test accounts are not secrets; codes and tokens are). Reuse before creating.
 Check a number is free first (`phoneHolder` in `e2e/flows/qa-api.ts`).
 
-Roles that need staff action once (approved member, venue-group host, Spotlight
-curation, table RSVP enabled on an event, `support_operator`): the
+Roles that need staff action once (approved member or host, venue-group host,
+Spotlight curation, comp setting, Instagram verified, `support_operator`): the
 `/admin/...` and `/events/v1/admin/...` endpoints require a real staff session
 (an `@therumor.com` account that signed in with an email code). You cannot get
 one. Ask the person running you to sign in to UAT admin in the browser pane
 themselves, then do only the setup steps on your own QA accounts and events,
-and say exactly which ones you did. Never touch other venue groups or curation
+and say exactly which ones you did. If the built-in browser fails the admin
+sign-in's security check, ask to use their Chrome (Claude in Chrome) instead. Never touch other venue groups or curation
 slots (e.g. "Tao Group" belongs to Gemma's testing).
 
 ## Test data hygiene

@@ -8,8 +8,8 @@ Group) with the Nov 2 member launch.
 
 ## Agreed behaviour (summary; rebuild the ledger from sources every run)
 
-- **Admin**: curates the Spotlight "drops" carousel (a drop expires when its
-  event starts); creates venue groups with a per-city Discover feed; links hosts
+- **Admin**: curates the Spotlight "drops" carousel (spec: a drop expires when
+  its event starts; code keeps it until the event ends, Q27); creates venue groups with a per-city Discover feed; links hosts
   (one group per host; every event of a linked host joins the feed; only admin
   removes); sets whether Rumor-network requests are comped.
 - **Member**: finds nights in Spotlight or a venue feed. RSVP alone (0–3
@@ -52,6 +52,17 @@ Group) with the Nov 2 member launch.
    (RUM-13458), table guests see who checked in (RUM-12986).
 9. Table-only UI leaking onto normal events ("+1 to review" tag, RUM-13472).
 
+10. Other roles acting through the API while the screen hides it: a link-only
+    guest-list collaborator and a check-in member with "Invite guests" could
+    list, shortlist and decline every table (pre-pass 10-26). The table guest
+    API returned the whole roster of a pending table while the list was hidden
+    (RUM-13577 fix covered lists only).
+11. Identity: the roster edit swaps the typed name for the matched account's
+    real name with no rate limit; a guest typed by phone who signs up and
+    requests alone blocks the table's confirm (409, no name).
+12. Gates skipped on the table path: the Instagram check runs on solo requests
+    only.
+
 ## Edge cases to always include
 
 Venue host creating a non-venue event (RUM-13384); group with one venue / venue
@@ -64,13 +75,19 @@ the right email/SMS again (RUM-13614); two devices editing one table
 
 ## Setup for a run
 
-Needs staff setup once (ask the person running you to sign in to UAT admin):
-a `QA-pre-pass Venue Group` with one QA venue host linked, table RSVP enabled
-on your QA event, Spotlight curation for your QA event only, and QA member
-accounts approved. Do not use the "Tao Group" venue group or its events: they
-are Gemma's test data. Relevant API routes:
+Needs staff setup once (the runner signs in at betahost and opens admin): a
+`QA-pre-pass Venue Group` with a venue location and the QA venue host linked,
+"Visible in Discover" on, the comp setting you want, a Spotlight drop for your
+QA event only, and QA member accounts approved (and Instagram verified if you
+need the Discover screens). There is no "enable tables" switch: an event the
+linked host creates at the group's venue address joins the feed and takes
+tables automatically; admin only overrides the size (keep 10). Do not use the
+"Tao Group" venue group or its events: they are Gemma's test data. After the
+run, turn "Visible in Discover" off and remove the drop. Relevant API routes:
 `rumor-backend-services/apps/events/src/routes/venue-table.routes.ts`
 (`/admin/venue-groups...`, `/admin/spotlight-curation...`,
 `/admin/events/:eventId/table-rsvp`, `/discover/...table-application...`,
-`/events/:eventId/table-applications/...review`). Member-side table routes
-also require the Spotlight venue-table flag for the caller.
+`/events/:eventId/table-applications/...review`). Only the feed, policy and
+submit routes check the `spotlight-venue-table-rsvp` flag; own-table read,
+roster edit, cancel, extras and every host route skip it. Calls are in
+`scripts/tables.mjs`.

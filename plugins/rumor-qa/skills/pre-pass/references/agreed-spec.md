@@ -30,6 +30,14 @@ guest list count).
 - The PR descriptions and their review threads: engineers sometimes record a
   product decision ("Gemma said X") only there.
 - Prototype artifacts: read with the Artifact tool (`action: read`), never fetch.
+  A multi-file prototype whose root read says "Loading…": list it with
+  `scope: "files"` and read the board files with `paths`. One that says "not
+  found" is not shared with this account: list it under "Unreadable sources",
+  lower the confidence of rows only it would decide, and ask the runner for
+  access before driving the grid.
+- Slack beyond linked threads: few tickets link Slack, and rulings sit in the
+  project channel. Read the project channel's full history, and search the
+  project name in #membership-community and #release-blockers.
 - Mockups attached to tickets: look at them (images), they are often the
   "expected".
 
@@ -49,3 +57,23 @@ guest list count).
   only after 2 completed events", "Not ranked under 10") are Drift until a
   source agrees. Gemma was surprised by both.
 - Scope adds that came after the spec (a ticket saying "add X") are rules too.
+
+## Required closing sections
+
+- **Hidden rules**: behaviour the code enforces that no source mentions (a size
+  limit, a cap, a time a thing expires, a role that passes a check). Number them
+  HR1, HR2… with file:line. Each one is Drift or a Question in the report.
+- **Unreadable sources**: every linked doc or prototype you could not open.
+
+## Big projects: per-ticket extraction template
+
+Extract in batches of ~50 tickets (one agent per batch), one block per ticket:
+
+```
+RUM-1234 · status · assignee · created → last activity
+What happens: <plain words>
+Expected: <as written by QA>
+Rulings: <who, date, exact decision> (none → "none")
+PRs: <repo#n, merged?>   Flags: <name>   Surfaces: <portal/app/admin/CSV/msg>
+Open questions: <…>
+```
