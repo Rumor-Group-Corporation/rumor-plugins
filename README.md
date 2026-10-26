@@ -19,6 +19,7 @@ A personal [Claude Code](https://code.claude.com/docs/en/plugins) plugin marketp
 | **ralph-wiggum** | Autonomous agent loop — runs Claude Code repeatedly until all PRD items are done, fresh context each iteration, memory persisted via git/`progress.txt`/`prd.json`. Based on Geoffrey Huntley's Ralph pattern. |
 | **rumor-db** | Read-only Rumor database access for agents. Query prod or UAT Neon over Tailscale with one script (`doctor`, `status`, `tables`, `columns`, `query`, `event`). Setup: [plugins/rumor-db/README.md](plugins/rumor-db/README.md). |
 | **rumor-linear** | Linear hygiene. `/rumor-linear:hygiene` sweeps the board and moves every ticket to the status its code has actually reached — merged, on UAT, in prod, flag on/off — from GitHub and deploy evidence. Asks before anything backward, and gives each person a short reminder list (stale work, missing PR links, waiting on QA or a promote, untracked PRs). Details: [plugins/rumor-linear/README.md](plugins/rumor-linear/README.md). |
+| **rumor-qa** | The QA pass before Sarah and Gemma's. `/rumor-qa:pre-pass <PR, ticket or project>` checks the work against what was agreed, plays every role on UAT web and the Staging app with its own test accounts, stress-tests money and inventory, runs thermos, and hands back a private report (bugs, drift, questions, role-by-screen grid). Fixes only on your go. Details: [plugins/rumor-qa/README.md](plugins/rumor-qa/README.md). |
 
 ### ralph-wiggum commands
 

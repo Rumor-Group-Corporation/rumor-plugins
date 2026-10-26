@@ -130,6 +130,23 @@
         "status",
         "reminders"
       ]
+    },
+    {
+      "name": "rumor-qa",
+      "source": "./plugins/rumor-qa",
+      "description": "The QA pass before Sarah and Gemma's: /rumor-qa:pre-pass checks a PR, ticket or project against what was agreed, plays every role on UAT web and the Staging app with its own test accounts, stress-tests money and inventory, runs thermos, and returns a private report of bugs, drift, questions and a role-by-screen grid. Fixes only on your go.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Rumor Engineering",
+        "url": "https://github.com/Rumor-Group-Corporation"
+      },
+      "tags": [
+        "qa",
+        "testing",
+        "uat",
+        "spec",
+        "review"
+      ]
     }
   ]
 }
