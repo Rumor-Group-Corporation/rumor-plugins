@@ -1,0 +1,13 @@
+{
+  "name": "rumor-qa",
+  "version": "0.1.0",
+  "description": "QA for Rumor features before they reach Sarah and Gemma. /rumor-qa:pre-pass reads what was agreed (spec, prototype, Linear and Slack rulings), plays every role on UAT web and the Rumor Staging app with its own test accounts, mixes states the way Gemma does, stress-tests money and inventory, runs a thermo code review, and hands back a private report: bugs, drift, open questions, and a role-by-screen grid. Fixes only on your go.",
+  "author": {
+    "name": "Rumor Engineering",
+    "url": "https://github.com/Rumor-Group-Corporation"
+  },
+  "repository": "https://github.com/Rumor-Group-Corporation/rumor-plugins",
+  "license": "MIT",
+  "keywords": ["qa", "testing", "uat", "spec", "review", "pre-pass"],
+  "skills": ["./skills/pre-pass/"]
+}

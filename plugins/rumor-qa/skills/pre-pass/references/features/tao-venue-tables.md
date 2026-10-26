@@ -1,0 +1,76 @@
+# Tao: venue feeds, Spotlight, table requests
+
+Linear project "Venue Discover Feed (Tao)" (P-RUM-204, lead Gemma). Spec: Linear
+doc "Tao Spotlight: Engineering Review (Admin, Member, Host Portal, Host App)"
+(Gemma, 10-05) plus the prototype artifacts it links. ~110 QA tickets, mostly
+Gemma, rounds 10-08 → 10-23. Launch: NYC (Tao) then Miami (Riviera Dining
+Group) with the Nov 2 member launch.
+
+## Agreed behaviour (summary; rebuild the ledger from sources every run)
+
+- **Admin**: curates the Spotlight "drops" carousel (a drop expires when its
+  event starts); creates venue groups with a per-city Discover feed; links hosts
+  (one group per host; every event of a linked host joins the feed; only admin
+  removes); sets whether Rumor-network requests are comped.
+- **Member**: finds nights in Spotlight or a venue feed. RSVP alone (0–3
+  additional guests) or request a table of exactly 10 (head + 9). Head adds
+  guests from contacts or by hand (first/last name, Instagram, phone or email).
+  Table guests need no account and hear nothing until approval. After approval
+  the head may request more guests (no limit).
+- **Venue host** (Portal + App): reviews by Event Fit and reach, shortlists,
+  confirms/declines tables as a whole with one ticket type for all; Confirm is
+  disabled until a ticket type is picked. Never sees guests' phone/email.
+  Declining an additional guest removes them. Check-in is per person.
+- **Tao**: creates events in its own host account and approves every request.
+  Approved tables held until one hour after doors.
+
+## Bug classes that hit this feature (check every one again)
+
+1. Same screen differs by entry point: Spotlight vs venue feed vs Events
+   dashboard; Portal vs App (RUM-13471 event page differs by entry point,
+   RUM-13473 ticket view, RUM-13461 locked-requests UI, RUM-13465 timeline).
+2. Group vs person: table actions moving one person (RUM-13349 shortlist moved
+   1 of 10; RUM-13370 extras put party in Confirmed and Requested).
+3. Request source lost: "Rumor Network" missing on timeline, export, confirmed
+   tab, venue+Spotlight events (RUM-13559, RUM-13536, RUM-13560, RUM-12993).
+4. Privacy applied to the lead only: plus-ones' contact info in host network
+   and CSV (RUM-13478); admin waiver visible to host (RUM-13464); share button
+   for feed-access guests (RUM-13616).
+5. Table state machine: swap before approval → ghost Declined (RUM-12984);
+   edit confirmed table → back to Requested, event vanishes from guests' apps
+   (RUM-13614); pending-table guests see the event as lead (RUM-13577);
+   confirmed guest shown "Request a table" (RUM-13578); add someone already on
+   the table (RUM-13617); can't un-shortlist (RUM-13072).
+6. Data not carried across screens: questionnaire answers (RUM-13537),
+   approved plus-one count (RUM-13467), existing profiles not matched from
+   phone/email (RUM-13282), Instagram prefill (RUM-13528).
+7. Hard blockers: requests could not submit at one venue (RUM-13526), table
+   head QR scan fails (RUM-13369), error toast on every event open (RUM-13303),
+   pre-approved members blocked from RSVP (RUM-13613).
+8. Role views: check-in team blocked (RUM-13462), collaborator sees all
+   requests (RUM-13466), request count differs across Host/Co-host/GLC/Check-in
+   (RUM-13458), table guests see who checked in (RUM-12986).
+9. Table-only UI leaking onto normal events ("+1 to review" tag, RUM-13472).
+
+## Edge cases to always include
+
+Venue host creating a non-venue event (RUM-13384); group with one venue / venue
+with no group (RUM-13274, RUM-13523); venue with no events, empty feed
+(RUM-12960, RUM-13271); event removed from Spotlight after a request
+(RUM-13283); one person on a table and requesting alone (RUM-13608); host
+approves a different plus-one count (RUM-13467); re-confirming a table sends
+the right email/SMS again (RUM-13614); two devices editing one table
+(RUM-13072); stale build or app cache (RUM-13559, RUM-13527, RUM-13331).
+
+## Setup for a run
+
+Needs staff setup once (ask the person running you to sign in to UAT admin):
+a `QA-pre-pass Venue Group` with one QA venue host linked, table RSVP enabled
+on your QA event, Spotlight curation for your QA event only, and QA member
+accounts approved. Do not use the "Tao Group" venue group or its events: they
+are Gemma's test data. Relevant API routes:
+`rumor-backend-services/apps/events/src/routes/venue-table.routes.ts`
+(`/admin/venue-groups...`, `/admin/spotlight-curation...`,
+`/admin/events/:eventId/table-rsvp`, `/discover/...table-application...`,
+`/events/:eventId/table-applications/...review`). Member-side table routes
+also require the Spotlight venue-table flag for the caller.
