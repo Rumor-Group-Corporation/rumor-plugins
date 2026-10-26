@@ -51,8 +51,8 @@ Track these as tasks. Do them in order; each feeds the next.
    template in `references/agreed-spec.md`.
 2. **Agreed-behaviour ledger.** Build it from every source, newest ruling wins.
    Follow `references/agreed-spec.md`. Every row: rule, source, date. Gaps
-   become questions, with "match regular RSVP" as the assumed answer. The
-   ledger must end with a "Hidden rules" section (behaviour in code that no
+   take the house rule ("match regular RSVP") as the expected behaviour; they
+   are not questions. The ledger must end with a "Hidden rules" section (behaviour in code that no
    source mentions) and an "Unreadable sources" line.
 3. **Read the logic.** For each flow in the ledger, read the code path in every
    repo it touches, including the screens and endpoints that show the SAME data
@@ -84,7 +84,9 @@ Track these as tasks. Do them in order; each feeds the next.
 8. **Verify findings.** For each: reproduce once more from a clean state,
    confirm the build under test contains the latest code, and check it is not
    already ticketed (search Linear by symptom). Classify: Bug / Drift / Question
-   / Already ticketed / Not a bug.
+   / Idea / Already ticketed / Not a bug, using "What counts as a Question" in
+   `references/agreed-spec.md`. A Question needs a source conflict or a person
+   stuck today; "should it also do X" is an Idea.
 9. **Report.** Build the page in `references/report.md`, publish it privately,
    give the link. Then stop and wait for go.
 
@@ -112,7 +114,10 @@ together overflow one context.
 |---|---|
 | "The code handles it, no need to click through" | Gemma's #1 bounce reason is a fix that exists in code but not on the screen she used. Click it. |
 | "Couldn't log in as that role, I'll read the code instead" | Mark the cell BLOCKED with the reason. Never PASS. |
-| "Probably intended" | Find the ruling or make it a Question. Never silently drop it. |
+| "Probably intended" | Find the ruling. None: test against the house rule. Never silently drop it. |
+| "Nobody decided this, so I'll ask Sarah" | If nothing is broken today, it is an Idea, not a Question. Ideas are never forwarded. |
+| "The spec answers it, but a new ticket asks again, so it's open" | The source answers it: it is a Bug or Drift. File it, don't ask. |
+| "Five questions shows I was thorough" | Each one costs Sarah a decision. Over 5 means you are asking about features. |
 | "The PR only changed one screen" | Every screen that shows the same data is in scope: portal, app, admin, CSV, email, SMS. |
 | "Web works, the app uses the same API" | Portal vs app drift is the most common Tao bug class. Test both. |
 | "It's just copy/spacing, Gemma won't care" | She files those. They count. |

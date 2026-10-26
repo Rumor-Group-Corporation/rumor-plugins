@@ -73,6 +73,16 @@ approves a different plus-one count (RUM-13467); re-confirming a table sends
 the right email/SMS again (RUM-13614); two devices editing one table
 (RUM-13072); stale build or app cache (RUM-13559, RUM-13527, RUM-13331).
 
+## Questions the first run should not have asked
+
+The 10-26 run sent 8 product questions; the team read most as feature
+requests. Two were bugs the spec already answered (a table guest requesting
+alone: the spec's dev note; collaborators deciding tables: earlier rulings).
+Four were ideas with nothing broken (partial re-review on a swap, a change log
+for lead edits, host removing one guest, table sizes other than 10). Only the
+Spotlight end time (spec vs build) and the Instagram check that differs
+between table and solo requests needed anyone's attention.
+
 ## Setup for a run
 
 Needs staff setup once (the runner signs in at betahost and opens admin): a

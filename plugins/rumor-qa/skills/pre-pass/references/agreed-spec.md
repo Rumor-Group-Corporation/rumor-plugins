@@ -11,7 +11,8 @@ them, then resolve in this order (newest explicit ruling first):
    truth for layout and behavior".
 3. The PRD / spec doc in the Linear project (Linear documents, Claude Docs).
 4. Figma frames linked from tickets.
-5. Nothing says: assume **the house rule** and log a Question.
+5. Nothing says: use **the house rule** as the expected behaviour. That is not
+   a Question; see "What counts as a Question" below.
 
 **The house rule** (what Gemma writes as "expected" when nothing was decided):
 match the regular RSVP flow, the standard component (standard EmptyState,
@@ -47,22 +48,57 @@ guest list count).
 |---|---|---|---|---|
 | 1 | A table request is approved or declined as a whole | host portal, host app | Spec doc 10-05; RUM-13349 comment 10-16 | ruled |
 | 2 | Declined extra guest disappears from the list | portal, app, CSV | RUM-12992 | ruled |
-| 3 | Empty feed shows the standard EmptyState | member app | none: house rule | assumed → Q3 |
+| 3 | Empty feed shows the standard EmptyState | member app | none: house rule | house rule |
 
 - One rule per row, written so a test can PASS or FAIL it.
-- Conflicts between sources: keep the winner, and list the conflict in the
-  report's Questions ("PRD says one row per event and source; Gemma's RUM-13596
-  says one row per event. Using RUM-13596.").
+- Conflicts between sources: keep the winner (newest explicit ruling) and
+  test against it. Note the losing source in the row. It becomes a Question
+  only when the order above cannot pick a winner (two rulings of the same date,
+  or the newer one is ambiguous).
 - Hidden thresholds the code enforces but no source mentions (e.g. "Reports tab
-  only after 2 completed events", "Not ranked under 10") are Drift until a
-  source agrees. Gemma was surprised by both.
+  only after 2 completed events", "Not ranked under 10") go in "Hidden rules"
+  so the runner knows them. Gemma was surprised by both. They are Drift only
+  when they contradict a source or the house rule.
 - Scope adds that came after the spec (a ticket saying "add X") are rules too.
+
+## What counts as a Question
+
+A Question costs Sarah and Yehuda a decision, and a list of them reads as a
+feature request list (the first Tao run sent 8; 2 were real). Before you write
+one, sort the item through this, in order, and stop at the first match:
+
+1. **A source answers it** (ruling, prototype, PRD, Figma, a ticket's
+   Expected, a dev note in the spec): it is a **Bug** or **Drift** against
+   that source. Do not ask again because a newer ticket repeats the question.
+2. **The house rule answers it** (regular RSVP, standard component, sibling
+   screen): test against the house rule. A FAIL is a Bug or Drift with
+   "Expected: house rule". Not a Question.
+3. **Nothing is broken today**, and the item is "should it also do X", "should
+   the host be able to Y", "do we ever need Z", a change log, a new control, a
+   new role, a narrower or wider scope: it is an **Idea**. It goes in the
+   report's "Ideas, not asked" list and is never forwarded.
+4. What is left may be a **Question**, and only if one of these is true:
+   - **Sources conflict** and the order above cannot pick a winner; or
+   - **The build contradicts a source on purpose**: a PR description, code
+     comment or ticket shows the different behaviour was chosen (otherwise it
+     is plain Drift); or
+   - **A real person is stuck or harmed today** (cannot finish the flow, sees
+     data they should not, loses money or a seat, two screens disagree) and
+     no source or house rule says what should happen instead.
+
+Every Question names the person hurt or the two sources that disagree, in one
+line. If you cannot write that line, it is an Idea. Expect 0 to 3 Questions on
+a normal run; more than 5 means you are asking about features.
+
+Hidden rules (HR rows) follow the same sort: Drift when they contradict a
+source or the house rule, a Question only under step 4, otherwise listed in
+"Hidden rules" for awareness and nothing more.
 
 ## Required closing sections
 
 - **Hidden rules**: behaviour the code enforces that no source mentions (a size
   limit, a cap, a time a thing expires, a role that passes a check). Number them
-  HR1, HR2… with file:line. Each one is Drift or a Question in the report.
+  HR1, HR2… with file:line. Sort each one with "What counts as a Question".
 - **Unreadable sources**: every linked doc or prototype you could not open.
 
 ## Big projects: per-ticket extraction template
@@ -75,5 +111,5 @@ What happens: <plain words>
 Expected: <as written by QA>
 Rulings: <who, date, exact decision> (none → "none")
 PRs: <repo#n, merged?>   Flags: <name>   Surfaces: <portal/app/admin/CSV/msg>
-Open questions: <…>
+Open questions: <only a conflict or a stuck user; "should it also…" is an Idea>
 ```
